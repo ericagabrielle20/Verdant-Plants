@@ -148,13 +148,6 @@
 <div id="weather-bar" class="weather-bar">
   <span style="font-style:italic;opacity:0.7">Add your ZIP in Settings for local conditions</span>
 </div>
-<div id="notif-banner" style="display:none;background:#1a3a2a;padding:10px 1.5rem;align-items:center;justify-content:space-between;gap:12px;">
-  <span style="font-size:13px;color:var(--green-pale)">💧 Get daily watering reminders?</span>
-  <div style="display:flex;gap:8px;">
-    <button onclick="requestNotifPermission()" style="background:var(--green-bright);color:var(--green-deep);border:none;padding:6px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">Enable</button>
-    <button onclick="dismissNotifBanner()" style="background:none;color:var(--green-pale);border:1px solid rgba(82,183,136,0.3);padding:6px 10px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Not now</button>
-  </div>
-</div>
 <nav class="nav">
   <button class="nav-btn active" onclick="showTab('plants')">My Plants</button>
   <button class="nav-btn" onclick="showTab('add')">+ Add Plant</button>
@@ -341,19 +334,6 @@
       <div class="setting-row"><div><div class="setting-label">Season</div></div><div class="setting-value" id="s-season">—</div></div>
       <div class="setting-row"><div><div class="setting-label">Humidity</div><div class="setting-sub">From local weather</div></div><div class="setting-value" id="s-humidity">—</div></div>
       <div class="setting-row"><div><div class="setting-label">Temperature</div></div><div class="setting-value" id="s-temp">—</div></div>
-    </div>
-    <div class="settings-card">
-      <div class="settings-title">Notifications</div>
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">Daily watering reminders</div>
-          <div class="setting-sub">Reminds you when plants are due or overdue</div>
-        </div>
-        <div id="notif-status" class="setting-value">—</div>
-      </div>
-      <div id="notif-enable-row" style="margin-top:8px;display:none">
-        <button onclick="requestNotifPermission()" style="background:var(--green-mid);color:white;border:none;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Enable notifications</button>
-      </div>
     </div>
     <div class="settings-card">
       <div class="settings-title">Data</div>
@@ -1120,71 +1100,6 @@ function deletePhoto() {
   closeLightbox();
   renderPlants();
 }
-// ── Notifications ────────────────────────────────────
-async function initNotifications() {
-  if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
-  try {
-    const reg = await navigator.serviceWorker.register('/service-worker.js');
-    console.log('SW registered');
-    // Check plants daily when app opens
-    checkPlantsNow(reg);
-    // Ask for permission if not yet granted
-    if (Notification.permission === 'default' && !localStorage.getItem('verdant_notif_dismissed')) {
-      setTimeout(showNotificationBanner, 1500);
-    }
-  } catch(e) {
-    console.log('SW registration failed:', e);
-  }
-}
-
-function showNotificationBanner() {
-  const banner = document.getElementById('notif-banner');
-  if (banner) banner.style.display = 'flex';
-}
-
-async function requestNotifPermission() {
-  const banner = document.getElementById('notif-banner');
-  if (banner) banner.style.display = 'none';
-  const perm = await Notification.requestPermission();
-  if (perm === 'granted') {
-    showToast('Notifications enabled! You'll get daily reminders.');
-    scheduleDailyCheck();
-  }
-}
-
-function dismissNotifBanner() {
-  const banner = document.getElementById('notif-banner');
-  if (banner) banner.style.display = 'none';
-  localStorage.setItem('verdant_notif_dismissed', '1');
-}
-
-function checkPlantsNow(reg) {
-  if (Notification.permission !== 'granted') return;
-  if (!plants.length) return;
-  // Build lightweight plant list with calculated water days
-  const plantData = plants.map(p => ({
-    name: p.name,
-    lastWater: p.lastWater,
-    waterDays: calcWater(p)
-  }));
-  if (reg && reg.active) {
-    reg.active.postMessage({ type: 'CHECK_PLANTS', plants: plantData, today: Date.now() });
-  }
-}
-
-function scheduleDailyCheck() {
-  // Store last check date, re-check on next open if it's a new day
-  localStorage.setItem('verdant_last_check', new Date().toDateString());
-}
-
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green-deep);color:var(--green-pale);padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;white-space:nowrap;';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
-
 function showTab(name){
   ['plants','add','settings'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'':'none';});
   document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',['plants','add','settings'][i]===name));
@@ -1202,7 +1117,6 @@ document.getElementById('season-chip').textContent=season.charAt(0).toUpperCase(
 document.getElementById('s-season').textContent=season.charAt(0).toUpperCase()+season.slice(1);
 loadWeather();
 renderPlants();
-initNotifications();
 </script>
 <input type="file" id="global-file-input" accept="image/*" style="display:none" onchange="addPhoto(this)">
 <!-- Lightbox -->
