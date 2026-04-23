@@ -727,7 +727,7 @@ function renderPlants() {
     const nextFeed = feedWks ? getNextDate(p.lastFeed, feedWks*7) : null;
     return `<div class="plant-card ${isCollapsed}" id="card-${i}" style="animation-delay:${i*0.05}s">
       <div class="plant-card-top">
-        <div class="plant-emoji" ${p.photos&&p.photos.length?`style="padding:0;overflow:hidden;cursor:pointer" onclick="openPhoto(${i},0)"`:''}>${p.photos&&p.photos.length?`<img src="${p.photos[0]}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`:`${emoji}`}</div>
+        <div class="plant-emoji" style="${p.photos&&p.photos.length?'padding:0;overflow:hidden;cursor:pointer':''}" ${p.photos&&p.photos.length?`onclick="openPhoto(${i},0)"`:''}>${p.photos&&p.photos.length?`<img src="${p.photos[0]}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`:`${emoji}`}</div>
         <div class="plant-info">
           <div class="plant-name">${p.name}</div>
           <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil · ${({liquid:'liquid fert',concentrated:'concentrated fert',slowrelease:'slow-release fert',none:'no fert'})[p.ferttype]||'liquid fert'}</div>
@@ -763,7 +763,7 @@ function renderPlants() {
           ${feedWks?`<button class="log-btn" onclick="logFeed(${i})">Fed ✓</button>`:'<span></span>'}
         </div>
       </div>
-      <div class="photo-row">${photoThumbs}<label class="photo-add">+<input type="file" accept="image/*" onchange="addPhoto(${i},this)"></label><span style="font-size:12px;color:var(--text-light)">${p.photos&&p.photos.length?p.photos.length+' photo'+(p.photos.length>1?'s':''):'Add photo'}</span></div>
+      <div class="photo-row">${photoThumbs}<button class="photo-add" onclick="triggerPhotoUpload(${i})" type="button">+</button><span style="font-size:12px;color:var(--text-light)">${p.photos&&p.photos.length?p.photos.length+' photo'+(p.photos.length>1?'s':''):'Add photo'}</span></div>
       <div class="adjust-row">
         <div class="adjust-label">
           <span>Schedule adjustment</span>
@@ -790,10 +790,22 @@ function saveNote(i,v){plants[i].notes=v;save();}
 function clearAll(){if(confirm('Remove all plants?')){plants=[];save();renderPlants();}}
 function save(){localStorage.setItem('verdant_v3',JSON.stringify(plants));}
 
-function addPhoto(i,input){
-  const f=input.files[0];if(!f)return;
+let _photoTargetIdx = null;
+function triggerPhotoUpload(i) {
+  _photoTargetIdx = i;
+  document.getElementById('global-file-input').value = '';
+  document.getElementById('global-file-input').click();
+}
+function addPhoto(input){
+  const f=input.files[0]; if(!f) return;
+  const i = _photoTargetIdx; if(i===null) return;
   const r=new FileReader();
-  r.onload=e=>{if(!plants[i].photos)plants[i].photos=[];plants[i].photos.push(e.target.result);save();renderPlants();};
+  r.onload=e=>{
+    if(!plants[i].photos) plants[i].photos=[];
+    plants[i].photos.push(e.target.result);
+    save();
+    renderPlants();
+  };
   r.readAsDataURL(f);
 }
 
@@ -962,6 +974,7 @@ document.getElementById('s-season').textContent=season.charAt(0).toUpperCase()+s
 loadWeather();
 renderPlants();
 </script>
+<input type="file" id="global-file-input" accept="image/*" style="display:none" onchange="addPhoto(this)">
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="closeLightboxOutside(event)">
   <div style="display:flex;flex-direction:column;align-items:center">
