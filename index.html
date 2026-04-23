@@ -71,6 +71,21 @@
   .adj-end { font-size: 11px; color: var(--text-light); white-space: nowrap; }
   .adj-slider { flex: 1; accent-color: var(--green-mid); }
   .notes-row { padding: 8px 1.25rem 12px; border-top: 1px solid var(--border); }
+  .card-collapsed .care-profile,
+  .card-collapsed .light-row,
+  .card-collapsed .care-section,
+  .card-collapsed .adjust-row,
+  .card-collapsed .notes-row,
+  .card-collapsed .photo-row { display: none; }
+  .card-summary { display: none; padding: 0 1.25rem 12px; gap: 12px; }
+  .card-collapsed .card-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .summary-item { font-size: 13px; color: var(--text-mid); display: flex; align-items: center; gap: 6px; }
+  .summary-item .status-badge { margin: 0; }
+  .summary-divider { width: 1px; height: 16px; background: var(--border); }
+  .collapse-btn { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 13px; padding: 2px 6px; border-radius: 6px; transition: all 0.15s; margin-left: auto; }
+  .collapse-btn:hover { background: var(--green-lightest); color: var(--green-mid); }
+  .collapse-all-btn { background: none; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-mid); padding: 5px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 12px; transition: all 0.15s; }
+  .collapse-all-btn:hover { background: var(--green-lightest); border-color: var(--green-bright); color: var(--green-mid); }
   .notes-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-dark); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; resize: none; background: var(--green-lightest); transition: border 0.2s; }
   .notes-input:focus { outline: none; border-color: var(--green-bright); }
   .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-light); }
@@ -670,7 +685,10 @@ function renderPlants() {
     </div>`;
     return;
   }
-  el.innerHTML = plants.map((p,i) => {
+  const allCollapsed = plants.length > 0 && plants.every(p => p.collapsed);
+  const collapseAllLabel = allCollapsed ? 'Expand all' : 'Collapse all';
+  const headerHtml = plants.length ? `<button class="collapse-all-btn" onclick="toggleCollapseAll()">${collapseAllLabel}</button>` : '';
+  el.innerHTML = headerHtml + '<div class="plants-inner">' + plants.map((p,i) => {
     const prof = p.profile || {};
     const emoji = prof.emoji || '🪴';
     const waterDays = calcWater(p);
@@ -682,14 +700,24 @@ function renderPlants() {
     const drainWarn = p.drain==='no' ? `<span class="tag tag-warn">No drainage — water carefully</span>` : p.drain==='leca' ? `<span class="tag">Leca drainage layer</span>` : '';
     const ventWarn = p.vent==='yes' ? `<span class="tag tag-warn">Near vent</span>` : '';
     const photos = (p.photos||[]).map(src=>`<img class="photo-thumb" src="${src}">`).join('');
-    return `<div class="plant-card" style="animation-delay:${i*0.05}s">
+    const isCollapsed = p.collapsed ? 'card-collapsed' : '';
+    const collapseIcon = p.collapsed ? '▼' : '▲';
+    const nextWater = getNextDate(p.lastWater, waterDays);
+    const nextFeed = feedWks ? getNextDate(p.lastFeed, feedWks*7) : null;
+    return `<div class="plant-card ${isCollapsed}" id="card-${i}" style="animation-delay:${i*0.05}s">
       <div class="plant-card-top">
         <div class="plant-emoji">${emoji}</div>
         <div class="plant-info">
           <div class="plant-name">${p.name}</div>
           <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil · ${({liquid:'liquid fert',concentrated:'concentrated fert',slowrelease:'slow-release fert',none:'no fert'})[p.ferttype]||'liquid fert'}</div>
         </div>
+        <button class="collapse-btn" onclick="toggleCollapse(${i})" title="Collapse/expand">${collapseIcon}</button>
         <button class="plant-delete" onclick="deletePlant(${i})">×</button>
+      </div>
+      <div class="card-summary">
+        <div class="summary-item">💧 <span>${wStatus.cls==='s-new'?'Not logged':nextWater}</span><span class="status-badge ${wStatus.cls}">${wStatus.text}</span></div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">🌿 <span>${!feedWks?'No feeding':fStatus.cls==='s-new'?'Not logged':nextFeed||'—'}</span>${feedWks?`<span class="status-badge ${fStatus.cls}">${fStatus.text}</span>`:''}</div>
       </div>
       ${prof.summary ? `<div class="care-profile"><div class="care-profile-label">Care profile</div>${prof.summary}<br><small style="color:var(--text-light)">${prof.waterTip||''}</small></div>` : ''}
       <div class="light-row">${pips}<span class="light-text">${p.light} light</span><span class="tag">${DIRMAP[p.dir]||p.dir}</span>${drainWarn}${ventWarn}</div>
@@ -730,7 +758,7 @@ function renderPlants() {
       </div>
       <div class="notes-row"><textarea class="notes-input" rows="2" placeholder="Notes..." onblur="saveNote(${i},this.value)">${p.notes||''}</textarea></div>
     </div>`;
-  }).join('');
+  }).join('') + '</div>';
 }
 
 function logWater(i){plants[i].lastWater=Date.now();save();renderPlants();}
@@ -827,6 +855,27 @@ async function saveZip(){
   }else{document.getElementById('zip-weather-result').textContent='Could not find location.';}
 }
 
+function getNextDate(lastTs, intervalDays) {
+  if (!lastTs) return 'Not logged';
+  const next = new Date(lastTs + intervalDays * 86400000);
+  const today = new Date();
+  const diff = Math.round((next - today) / 86400000);
+  if (diff < 0) return 'Overdue';
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  return next.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+function toggleCollapse(i) {
+  plants[i].collapsed = !plants[i].collapsed;
+  save();
+  renderPlants();
+}
+function toggleCollapseAll() {
+  const allCollapsed = plants.every(p => p.collapsed);
+  plants.forEach(p => p.collapsed = !allCollapsed);
+  save();
+  renderPlants();
+}
 function getAdjLabel(v) {
   const labels = { '-3':'Much faster', '-2':'Faster', '-1':'Slightly faster', '0':'On schedule', '1':'Slightly slower', '2':'Slower', '3':'Much slower' };
   return labels[String(v)] || 'On schedule';
