@@ -793,20 +793,47 @@ function save(){localStorage.setItem('verdant_v3',JSON.stringify(plants));}
 let _photoTargetIdx = null;
 function triggerPhotoUpload(i) {
   _photoTargetIdx = i;
-  document.getElementById('global-file-input').value = '';
-  document.getElementById('global-file-input').click();
+  const inp = document.getElementById('global-file-input');
+  inp.value = '';
+  inp.click();
 }
 function addPhoto(input){
-  const f=input.files[0]; if(!f) return;
-  const i = _photoTargetIdx; if(i===null) return;
-  const r=new FileReader();
-  r.onload=e=>{
-    if(!plants[i].photos) plants[i].photos=[];
+  const f = input.files[0]; if(!f) return;
+  const i = _photoTargetIdx; if(i === null || i === undefined) return;
+  const r = new FileReader();
+  r.onload = function(e) {
+    if(!plants[i].photos) plants[i].photos = [];
     plants[i].photos.push(e.target.result);
     save();
-    renderPlants();
+    // Update just the photo row and emoji without full re-render to avoid collapse state loss
+    updateCardPhotos(i);
   };
   r.readAsDataURL(f);
+}
+function updateCardPhotos(i) {
+  const p = plants[i];
+  const card = document.getElementById('card-' + i);
+  if (!card) { renderPlants(); return; }
+  // Update emoji/icon
+  const emojiDiv = card.querySelector('.plant-emoji');
+  if (emojiDiv && p.photos && p.photos.length) {
+    emojiDiv.style.padding = '0';
+    emojiDiv.style.overflow = 'hidden';
+    emojiDiv.style.cursor = 'pointer';
+    emojiDiv.onclick = function() { openPhoto(i, 0); };
+    emojiDiv.innerHTML = '<img src="' + p.photos[0] + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">';
+  }
+  // Update photo row thumbnails and count
+  const photoRow = card.querySelector('.photo-row');
+  if (photoRow) {
+    const thumbs = p.photos.map((src,j) =>
+      '<img class="photo-thumb" src="' + src + '" onclick="openPhoto(' + i + ',' + j + ')" style="cursor:pointer">'
+    ).join('');
+    const countLabel = p.photos.length + ' photo' + (p.photos.length > 1 ? 's' : '');
+    photoRow.innerHTML = thumbs +
+      '<button class="photo-add" onclick="triggerPhotoUpload(' + i + ')" type="button">+</button>' +
+      '<span style="font-size:12px;color:var(--text-light)">' + countLabel + '</span>';
+  }
 }
 
 function addPlant(){
@@ -902,7 +929,16 @@ function getNextDate(lastTs, intervalDays) {
 function toggleCollapse(i) {
   plants[i].collapsed = !plants[i].collapsed;
   save();
-  renderPlants();
+  const card = document.getElementById('card-' + i);
+  if (card) {
+    card.classList.toggle('card-collapsed', plants[i].collapsed);
+    const btn = card.querySelector('.collapse-btn');
+    if (btn) btn.textContent = plants[i].collapsed ? '▼' : '▲';
+    // update collapse-all button label
+    const allCollapsed = plants.every(p => p.collapsed);
+    const caBtn = document.querySelector('.collapse-all-btn');
+    if (caBtn) caBtn.textContent = allCollapsed ? 'Expand all' : 'Collapse all';
+  }
 }
 function toggleCollapseAll() {
   const allCollapsed = plants.every(p => p.collapsed);
@@ -925,7 +961,17 @@ function updateAdj(i, v) {
     if (sched) sched.textContent = 'Every ~' + waterDays + ' days';
   }
 }
-function saveAdj(i, v) { plants[i].adjustment = parseInt(v); save(); renderPlants(); }
+function saveAdj(i, v) {
+  plants[i].adjustment = parseInt(v);
+  save();
+  // Only update the schedule text, don't full re-render (preserves collapse state)
+  const card = document.getElementById('card-' + i);
+  if (card) {
+    const waterDays = calcWater(plants[i]);
+    const schedEls = card.querySelectorAll('.care-schedule');
+    if (schedEls[0]) schedEls[0].textContent = 'Every ~' + waterDays + ' days';
+  }
+}
 let lbPlantIdx = null, lbPhotoIdx = null;
 function openPhoto(plantI, photoI) {
   const p = plants[plantI];
