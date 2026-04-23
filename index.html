@@ -3,289 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verdant — Plant Care Tracker</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Verdant">
+<title>Verdant</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green-deep: #1a3a2a; --green-mid: #2d6a4f; --green-bright: #52b788;
-    --green-pale: #d8f3dc; --green-lightest: #f0faf2;
-    --amber: #e76f51; --amber-pale: #fdebd6;
-    --blue: #2d6a8f; --blue-pale: #dbeeff;
-    --sand: #f8f5f0; --text-dark: #1a2420; --text-mid: #4a5e55;
-    --text-light: #8fa898; --border: rgba(45,106,79,0.15);
-    --radius: 14px; --shadow: 0 2px 16px rgba(26,58,42,0.08);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(--text-dark); min-height: 100vh; }
-  .app-header { background: var(--green-deep); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-  .app-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--green-pale); letter-spacing: 0.02em; }
-  .app-title span { color: var(--green-bright); font-style: italic; }
-  .season-chip { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: rgba(82,183,136,0.2); color: var(--green-bright); letter-spacing: 0.04em; text-transform: uppercase; }
-  .weather-bar { background: var(--green-mid); padding: 10px 1.5rem; font-size: 13px; color: rgba(216,243,220,0.85); }
-  .nav { display: flex; background: white; border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
-  .nav-btn { padding: 14px 18px; background: none; border: none; border-bottom: 2px solid transparent; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--text-light); cursor: pointer; transition: all 0.2s; }
-  .nav-btn.active { color: var(--green-mid); border-bottom-color: var(--green-mid); }
-  .main { padding: 1.25rem 1.5rem 5rem; max-width: 680px; margin: 0 auto; }
-  .plants-list { display: flex; flex-direction: column; gap: 14px; }
-  .plant-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; animation: fadeUp 0.3s ease both; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-  .plant-card-top { padding: 1rem 1.25rem 0.75rem; display: flex; align-items: flex-start; gap: 14px; }
-  .plant-emoji { width: 48px; height: 48px; border-radius: 12px; background: var(--green-lightest); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; border: 1px solid var(--green-pale); }
-  .plant-info { flex: 1; }
-  .plant-name { font-size: 16px; font-weight: 500; color: var(--text-dark); }
-  .plant-meta { font-size: 12px; color: var(--text-light); margin-top: 3px; line-height: 1.5; }
-  .plant-delete { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 20px; line-height: 1; padding: 2px 4px; border-radius: 6px; }
-  .edit-btn { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 6px; }
-  .edit-btn:hover { background: var(--green-lightest); color: var(--green-mid); }
-  .plant-delete:hover { background: #fde8e8; color: #c0392b; }
-  .care-profile { margin: 0 1.25rem 0.75rem; padding: 10px 12px; background: var(--green-lightest); border-radius: 8px; border: 1px solid var(--green-pale); font-size: 12px; color: var(--text-mid); line-height: 1.6; }
-  .care-profile-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green-mid); margin-bottom: 4px; }
-  .light-row { display: flex; align-items: center; gap: 6px; padding: 0 1.25rem 0.75rem; flex-wrap: wrap; }
-  .light-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-pale); border: 1px solid rgba(45,106,79,0.2); }
-  .light-dot.on { background: #f4d03f; border-color: #d4ac0d; }
-  .light-text { font-size: 12px; color: var(--text-light); margin-left: 2px; }
-  .tag { font-size: 11px; background: var(--green-lightest); color: var(--green-mid); padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-  .tag-warn { background: var(--amber-pale); color: var(--amber); }
-  .care-section { border-top: 1px solid var(--border); }
-  .care-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 1.25rem; border-bottom: 1px solid var(--border); }
-  .care-row:last-child { border-bottom: none; }
-  .care-left { flex: 1; }
-  .care-type { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-light); margin-bottom: 2px; }
-  .care-schedule { font-size: 14px; color: var(--text-dark); font-weight: 500; }
-  .care-last { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-  .status-badge { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; white-space: nowrap; margin: 0 8px; }
-  .s-overdue { background: #fdecea; color: #c0392b; }
-  .s-soon { background: var(--amber-pale); color: var(--amber); }
-  .s-ok { background: var(--green-pale); color: var(--green-mid); }
-  .s-dormant { background: var(--blue-pale); color: var(--blue); }
-  .s-new { background: #f0f0f0; color: #888; }
-  .log-btn { background: none; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-mid); padding: 5px 10px; border-radius: 8px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-  .log-btn:hover { background: var(--green-lightest); border-color: var(--green-bright); color: var(--green-mid); }
-  .photo-row { display: flex; gap: 8px; padding: 10px 1.25rem; align-items: center; border-top: 1px solid var(--border); }
-  .photo-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
-  .photo-add { width: 44px; height: 44px; border-radius: 8px; border: 1.5px dashed var(--border); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-light); transition: all 0.15s; }
-  .photo-add:hover { border-color: var(--green-bright); color: var(--green-mid); background: var(--green-lightest); }
-  input[type=file] { display: none; }
-  .adjust-row { padding: 10px 1.25rem 8px; border-top: 1px solid var(--border); }
-  .adjust-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 500; color: var(--text-mid); }
-  .adj-val { font-size: 12px; font-weight: 500; color: var(--green-mid); }
-  .adjust-track { display: flex; align-items: center; gap: 8px; }
-  .adj-end { font-size: 11px; color: var(--text-light); white-space: nowrap; }
-  .adj-slider { flex: 1; accent-color: var(--green-mid); }
-  .notes-row { padding: 8px 1.25rem 12px; border-top: 1px solid var(--border); }
-  .card-collapsed .care-profile,
-  .card-collapsed .light-row,
-  .card-collapsed .care-section,
-  .card-collapsed .adjust-row,
-  .card-collapsed .notes-row,
-  .card-collapsed .photo-row { display: none; }
-  .card-summary { display: none; padding: 0 1.25rem 12px; gap: 12px; }
-  .card-collapsed .card-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-  .summary-item { font-size: 13px; color: var(--text-mid); display: flex; align-items: center; gap: 6px; }
-  .summary-item .status-badge { margin: 0; }
-  .summary-divider { width: 1px; height: 16px; background: var(--border); }
-  .collapse-btn { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 13px; padding: 2px 6px; border-radius: 6px; transition: all 0.15s; margin-left: auto; }
-  .collapse-btn:hover { background: var(--green-lightest); color: var(--green-mid); }
-  .collapse-all-btn { background: none; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-mid); padding: 5px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 12px; transition: all 0.15s; }
-  .collapse-all-btn:hover { background: var(--green-lightest); border-color: var(--green-bright); color: var(--green-mid); }
-  .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:999; flex-direction:column; align-items:center; justify-content:center; }
-  .lightbox.open { display:flex; }
-  .lightbox-img { max-width:95vw; max-height:80vh; object-fit:contain; border-radius:12px; }
-  .lightbox-bar { display:flex; align-items:center; justify-content:space-between; width:95vw; padding:12px 0 0; }
-  .lightbox-label { color:rgba(255,255,255,0.7); font-size:13px; }
-  .lightbox-close { background:rgba(255,255,255,0.15); border:none; color:white; font-size:18px; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .lightbox-nav { display:flex; gap:12px; }
-  .lightbox-nav button { background:rgba(255,255,255,0.15); border:none; color:white; font-size:16px; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .lightbox-nav button:disabled { opacity:0.3; cursor:default; }
-  .lightbox-delete { background:rgba(192,57,43,0.7); border:none; color:white; font-size:12px; padding:6px 14px; border-radius:8px; cursor:pointer; margin-top:10px; font-family:'DM Sans',sans-serif; }
-  .notes-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-dark); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; resize: none; background: var(--green-lightest); transition: border 0.2s; }
-  .notes-input:focus { outline: none; border-color: var(--green-bright); }
-  .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-light); }
-  .empty-icon { font-size: 56px; margin-bottom: 16px; }
-  .empty-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-mid); margin-bottom: 8px; }
-  .empty-sub { font-size: 14px; line-height: 1.6; max-width: 260px; margin: 0 auto 20px; }
-  .empty-btn { background: var(--green-mid); color: white; border: none; padding: 10px 24px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
-  .add-form { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; }
-  .form-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 1.25rem; color: var(--green-deep); }
-  .form-section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-light); margin: 1.25rem 0 0.6rem; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-label { font-size: 12px; font-weight: 500; color: var(--text-mid); }
-  .form-label small { font-weight: 400; color: var(--text-light); }
-  .form-input, .form-select, .form-textarea { font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; background: var(--sand); color: var(--text-dark); transition: border 0.2s; width: 100%; }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--green-bright); background: white; }
-  .form-textarea { resize: vertical; min-height: 60px; }
-  .form-help { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-  .species-match { grid-column: 1 / -1; background: var(--green-lightest); border: 1px solid var(--green-pale); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text-mid); line-height: 1.6; display: none; }
-  .species-match.visible { display: block; }
-  .species-match-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green-mid); margin-bottom: 6px; }
-  .suggest-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .suggest-chip { background: white; border: 1px solid var(--green-pale); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--green-mid); cursor: pointer; transition: all 0.15s; }
-  .suggest-chip:hover { background: var(--green-pale); }
-  .submit-btn { width: 100%; padding: 12px; background: var(--green-deep); color: white; border: none; border-radius: 10px; font-family: 'DM Serif Display', serif; font-size: 16px; cursor: pointer; margin-top: 1.25rem; transition: background 0.2s; }
-  .submit-btn:hover { background: var(--green-mid); }
-  .settings-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 14px; }
-  .settings-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--green-deep); margin-bottom: 1rem; }
-  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .setting-row:last-child { border-bottom: none; }
-  .setting-label { font-size: 14px; color: var(--text-dark); }
-  .setting-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
-  .setting-value { font-size: 14px; font-weight: 500; color: var(--green-mid); }
-  .zip-form { display: flex; gap: 8px; margin-top: 8px; }
-  .zip-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; background: var(--sand); }
-  .zip-input:focus { outline: none; border-color: var(--green-bright); }
-  .zip-btn { background: var(--green-mid); color: white; border: none; border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
-  @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } .form-group.full { grid-column: 1; } .main { padding: 1rem 1rem 5rem; } }
+:root {
+  --gd: #1a3a2a; --gm: #2d6a4f; --gb: #52b788;
+  --gp: #d8f3dc; --gl: #f0faf2;
+  --am: #e76f51; --ap: #fdebd6;
+  --bl: #2d6a8f; --bp: #dbeeff;
+  --sand: #f8f5f0; --td: #1a2420; --tm: #4a5e55; --tl: #8fa898;
+  --bdr: rgba(45,106,79,0.15); --r: 14px;
+  --sh: 0 2px 16px rgba(26,58,42,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(--td); min-height: 100vh; }
+
+/* ── Header ── */
+.hdr { background: var(--gd); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.hdr-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--gp); }
+.hdr-title em { color: var(--gb); }
+.season-chip { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: rgba(82,183,136,0.2); color: var(--gb); letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ── Weather bar ── */
+.wbar { background: var(--gm); padding: 10px 1.5rem; font-size: 13px; color: rgba(216,243,220,0.85); min-height: 38px; }
+
+/* ── Notification banner ── */
+.nbanner { display: none; background: var(--gd); padding: 10px 1.5rem; align-items: center; justify-content: space-between; gap: 12px; }
+.nbanner.show { display: flex; }
+.nbanner span { font-size: 13px; color: var(--gp); }
+.nbanner-btns { display: flex; gap: 8px; flex-shrink: 0; }
+.nbtn-yes { background: var(--gb); color: var(--gd); border: none; padding: 6px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; }
+.nbtn-no { background: none; color: var(--gp); border: 1px solid rgba(82,183,136,0.3); padding: 6px 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+
+/* ── Nav ── */
+.nav { display: flex; background: white; border-bottom: 1px solid var(--bdr); padding: 0 1.5rem; }
+.nav-btn { padding: 14px 18px; background: none; border: none; border-bottom: 2px solid transparent; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--tl); cursor: pointer; transition: all 0.2s; }
+.nav-btn.active { color: var(--gm); border-bottom-color: var(--gm); }
+
+/* ── Main ── */
+.main { padding: 1.25rem 1.5rem 5rem; max-width: 680px; margin: 0 auto; }
+
+/* ── Plant cards ── */
+.plants-list { display: flex; flex-direction: column; gap: 14px; }
+.plant-card { background: white; border-radius: var(--r); box-shadow: var(--sh); overflow: hidden; animation: fadeUp 0.3s ease both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.card-top { padding: 1rem 1.25rem 0.75rem; display: flex; align-items: flex-start; gap: 12px; }
+.card-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--gl); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; border: 1px solid var(--gp); overflow: hidden; }
+.card-icon img { width: 100%; height: 100%; object-fit: cover; }
+.card-icon.has-photo { cursor: pointer; padding: 0; }
+.card-info { flex: 1; min-width: 0; }
+.card-name { font-size: 16px; font-weight: 500; color: var(--td); }
+.card-meta { font-size: 11px; color: var(--tl); margin-top: 3px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-btns { display: flex; gap: 4px; flex-shrink: 0; }
+.card-btn { background: none; border: none; cursor: pointer; color: var(--tl); font-size: 16px; line-height: 1; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; }
+.card-btn:hover { background: var(--gl); color: var(--gm); }
+.card-btn.del:hover { background: #fde8e8; color: #c0392b; }
+
+/* Collapsed summary */
+.card-summary { display: none; padding: 0 1.25rem 12px; gap: 10px; flex-wrap: wrap; }
+.card-collapsed .card-summary { display: flex; }
+.card-collapsed .card-profile,
+.card-collapsed .card-light,
+.card-collapsed .card-care,
+.card-collapsed .card-photos,
+.card-collapsed .card-adjust,
+.card-collapsed .card-notes { display: none; }
+.sum-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--tm); }
+.sum-div { width: 1px; height: 16px; background: var(--bdr); }
+
+/* Profile strip */
+.card-profile { margin: 0 1.25rem 0.75rem; padding: 10px 12px; background: var(--gl); border-radius: 8px; border: 1px solid var(--gp); font-size: 12px; color: var(--tm); line-height: 1.6; }
+.card-profile-lbl { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gm); margin-bottom: 4px; }
+
+/* Light row */
+.card-light { display: flex; align-items: center; gap: 6px; padding: 0 1.25rem 0.75rem; flex-wrap: wrap; }
+.ldot { width: 8px; height: 8px; border-radius: 50%; background: var(--gp); border: 1px solid rgba(45,106,79,0.2); }
+.ldot.on { background: #f4d03f; border-color: #d4ac0d; }
+.ltxt { font-size: 12px; color: var(--tl); margin-left: 2px; }
+.tag { font-size: 11px; background: var(--gl); color: var(--gm); padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.tag-w { background: var(--ap); color: var(--am); }
+
+/* Care rows */
+.card-care { border-top: 1px solid var(--bdr); }
+.care-row { display: flex; align-items: center; padding: 10px 1.25rem; border-bottom: 1px solid var(--bdr); gap: 8px; }
+.care-row:last-child { border-bottom: none; }
+.care-left { flex: 1; min-width: 0; }
+.care-type { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tl); margin-bottom: 2px; }
+.care-sched { font-size: 14px; color: var(--td); font-weight: 500; }
+.care-note { font-size: 11px; color: var(--am); margin-top: 2px; }
+.care-last { font-size: 11px; color: var(--tl); margin-top: 2px; }
+.sbadge { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.s-over { background: #fdecea; color: #c0392b; }
+.s-soon { background: var(--ap); color: var(--am); }
+.s-ok { background: var(--gp); color: var(--gm); }
+.s-dorm { background: var(--bp); color: var(--bl); }
+.s-new { background: #f0f0f0; color: #888; }
+.log-btn { background: none; border: 1px solid var(--bdr); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--tm); padding: 5px 10px; border-radius: 8px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.log-btn:hover { background: var(--gl); border-color: var(--gb); color: var(--gm); }
+
+/* Photos */
+.card-photos { display: flex; gap: 8px; padding: 10px 1.25rem; align-items: center; border-top: 1px solid var(--bdr); flex-wrap: wrap; }
+.photo-thumb { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; border: 1px solid var(--bdr); cursor: pointer; }
+.photo-add-btn { width: 52px; height: 52px; border-radius: 8px; border: 1.5px dashed var(--bdr); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--tl); transition: all 0.15s; flex-shrink: 0; }
+.photo-add-btn:hover { border-color: var(--gb); color: var(--gm); background: var(--gl); }
+.photo-count { font-size: 12px; color: var(--tl); }
+
+/* Adjustment */
+.card-adjust { padding: 10px 1.25rem 8px; border-top: 1px solid var(--bdr); }
+.adj-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 500; color: var(--tm); }
+.adj-val { font-size: 12px; font-weight: 500; color: var(--gm); }
+.adj-track { display: flex; align-items: center; gap: 8px; }
+.adj-end { font-size: 11px; color: var(--tl); white-space: nowrap; }
+.adj-slider { flex: 1; accent-color: var(--gm); }
+
+/* Notes */
+.card-notes { padding: 8px 1.25rem 12px; border-top: 1px solid var(--bdr); }
+.notes-ta { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--td); border: 1px solid var(--bdr); border-radius: 8px; padding: 7px 10px; resize: none; background: var(--gl); transition: border 0.2s; }
+.notes-ta:focus { outline: none; border-color: var(--gb); }
+
+/* Collapse all btn */
+.collapse-all { background: none; border: 1px solid var(--bdr); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--tm); padding: 5px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 12px; transition: all 0.15s; }
+.collapse-all:hover { background: var(--gl); border-color: var(--gb); color: var(--gm); }
+
+/* Empty state */
+.empty { text-align: center; padding: 4rem 1rem; color: var(--tl); }
+.empty-icon { font-size: 56px; margin-bottom: 16px; }
+.empty-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--tm); margin-bottom: 8px; }
+.empty-sub { font-size: 14px; line-height: 1.6; max-width: 260px; margin: 0 auto 20px; }
+.empty-btn { background: var(--gm); color: white; border: none; padding: 10px 24px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
+
+/* ── Add / Edit form ── */
+.form-wrap { background: white; border-radius: var(--r); box-shadow: var(--sh); padding: 1.5rem; }
+.form-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 1.25rem; color: var(--gd); }
+.fsec { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tl); margin: 1.25rem 0 0.6rem; }
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg.full { grid-column: 1 / -1; }
+.flbl { font-size: 12px; font-weight: 500; color: var(--tm); }
+.flbl small { font-weight: 400; color: var(--tl); }
+.fin, .fsel, .fta { font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--bdr); border-radius: 8px; padding: 9px 12px; background: var(--sand); color: var(--td); transition: border 0.2s; width: 100%; }
+.fin:focus, .fsel:focus, .fta:focus { outline: none; border-color: var(--gb); background: white; }
+.fta { resize: vertical; min-height: 60px; }
+.fhelp { font-size: 11px; color: var(--tl); margin-top: 2px; }
+
+/* Species match box */
+.species-box { grid-column: 1 / -1; background: var(--gl); border: 1px solid var(--gp); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--tm); line-height: 1.6; display: none; }
+.species-box.show { display: block; }
+.species-lbl { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gm); margin-bottom: 6px; }
+.suggest-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.suggest-chip { background: white; border: 1px solid var(--gp); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--gm); cursor: pointer; transition: all 0.15s; }
+.suggest-chip:hover { background: var(--gp); }
+
+.submit-btn { width: 100%; padding: 12px; background: var(--gd); color: white; border: none; border-radius: 10px; font-family: 'DM Serif Display', serif; font-size: 16px; cursor: pointer; margin-top: 1.25rem; transition: background 0.2s; }
+.submit-btn:hover { background: var(--gm); }
+
+/* ── Settings ── */
+.scard { background: white; border-radius: var(--r); box-shadow: var(--sh); padding: 1.5rem; margin-bottom: 14px; }
+.stitle { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--gd); margin-bottom: 1rem; }
+.srow { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--bdr); }
+.srow:last-child { border-bottom: none; }
+.slbl { font-size: 14px; color: var(--td); }
+.ssub { font-size: 12px; color: var(--tl); margin-top: 2px; }
+.sval { font-size: 14px; font-weight: 500; color: var(--gm); }
+.zip-row { display: flex; gap: 8px; margin-top: 8px; }
+.zip-in { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--bdr); border-radius: 8px; padding: 8px 12px; background: var(--sand); }
+.zip-in:focus { outline: none; border-color: var(--gb); }
+.zip-btn { background: var(--gm); color: white; border: none; border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+.danger-btn { background: #fdecea; color: #c0392b; border: none; padding: 6px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+.notif-btn { background: var(--gm); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; margin-top: 8px; }
+
+/* ── Lightbox ── */
+.lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+.lightbox.open { display: flex; }
+.lb-img { max-width: 95vw; max-height: 78vh; object-fit: contain; border-radius: 10px; }
+.lb-bar { display: flex; align-items: center; justify-content: space-between; width: 95vw; padding: 12px 0 0; }
+.lb-label { color: rgba(255,255,255,0.6); font-size: 13px; }
+.lb-close { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 18px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+.lb-nav { display: flex; gap: 10px; }
+.lb-nav button { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 18px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+.lb-nav button:disabled { opacity: 0.3; }
+.lb-del { background: rgba(192,57,43,0.75); border: none; color: white; font-size: 12px; padding: 7px 16px; border-radius: 8px; cursor: pointer; margin-top: 12px; font-family: 'DM Sans', sans-serif; }
+
+/* ── Toast ── */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--gd); color: var(--gp); padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 1000; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+.toast.show { opacity: 1; }
+
+/* ── Hidden file input ── */
+#photo-input { display: none; }
+
+@media (max-width: 480px) {
+  .fgrid { grid-template-columns: 1fr; }
+  .fg.full { grid-column: 1; }
+  .main { padding: 1rem 1rem 5rem; }
+}
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <div class="app-title"><span>Verdant</span></div>
-  <div id="season-chip" class="season-chip">Loading...</div>
+<div class="hdr">
+  <div class="hdr-title"><em>Verdant</em></div>
+  <div id="season-chip" class="season-chip">—</div>
 </div>
-<div id="weather-bar" class="weather-bar">
-  <span style="font-style:italic;opacity:0.7">Add your ZIP in Settings for local conditions</span>
+<div id="wbar" class="wbar">Add your ZIP in Settings for local conditions</div>
+<div id="nbanner" class="nbanner">
+  <span>Get daily watering reminders?</span>
+  <div class="nbanner-btns">
+    <button class="nbtn-yes" onclick="enableNotifs()">Enable</button>
+    <button class="nbtn-no" onclick="dismissNotifBanner()">Not now</button>
+  </div>
 </div>
 <nav class="nav">
-  <button class="nav-btn active" onclick="showTab('plants')">My Plants</button>
-  <button class="nav-btn" onclick="showTab('add')">+ Add Plant</button>
-  <button class="nav-btn" onclick="showTab('settings')">Settings</button>
+  <button class="nav-btn active" id="tab-btn-plants" onclick="showTab('plants')">My Plants</button>
+  <button class="nav-btn" id="tab-btn-add" onclick="showTab('add')">+ Add Plant</button>
+  <button class="nav-btn" id="tab-btn-settings" onclick="showTab('settings')">Settings</button>
 </nav>
 
 <div class="main">
-  <div id="tab-plants"><div id="plants-list" class="plants-list"></div></div>
+  <!-- Plants -->
+  <div id="tab-plants">
+    <div id="plants-list" class="plants-list"></div>
+  </div>
 
+  <!-- Add/Edit -->
   <div id="tab-add" style="display:none">
-    <div class="add-form">
+    <div class="form-wrap">
       <div class="form-title" id="form-title">Add a new plant</div>
 
-      <div class="form-section-label">Plant identity</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label class="form-label">Your nickname for this plant</label>
-          <input type="text" class="form-input" id="f-name" placeholder="e.g. Bedroom Monstera">
+      <div class="fsec">Plant identity</div>
+      <div class="fgrid">
+        <div class="fg full">
+          <label class="flbl">Nickname</label>
+          <input type="text" class="fin" id="f-name" placeholder="e.g. Bedroom Monstera">
         </div>
-        <div class="form-group full">
-          <label class="form-label">Plant type <small>— type to search</small></label>
-          <input type="text" class="form-input" id="f-species" placeholder="e.g. pothos, calathea, snake plant..." oninput="searchSpecies()" autocomplete="off">
-          <div class="form-help">Search from 100+ plants or type your own</div>
+        <div class="fg full">
+          <label class="flbl">Plant type <small>— type to search 100+ plants</small></label>
+          <input type="text" class="fin" id="f-species" placeholder="e.g. pothos, calathea ornata, snake plant..." oninput="searchSpecies()" autocomplete="off">
         </div>
-        <div class="species-match" id="species-box">
-          <div class="species-match-label">Matched plant</div>
+        <div class="species-box" id="species-box">
+          <div class="species-lbl">Plant profile</div>
           <div id="species-info"></div>
           <div class="suggest-list" id="suggest-list"></div>
         </div>
       </div>
 
-      <div class="form-section-label">Pot & soil</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Pot material</label>
-          <select class="form-select" id="f-pot">
+      <div class="fsec">Pot & soil</div>
+      <div class="fgrid">
+        <div class="fg">
+          <label class="flbl">Pot material</label>
+          <select class="fsel" id="f-pot">
             <option value="terracotta">Terracotta (dries faster)</option>
             <option value="plastic">Plastic (retains moisture)</option>
-            <option value="ceramic">Ceramic / glazed</option>
+            <option value="ceramic" selected>Ceramic / glazed</option>
             <option value="fabric">Fabric / grow bag</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Drainage holes?</label>
-          <select class="form-select" id="f-drain">
-            <option value="yes">Yes — has drainage holes</option>
+        <div class="fg">
+          <label class="flbl">Drainage</label>
+          <select class="fsel" id="f-drain">
+            <option value="yes" selected>Has drainage holes</option>
             <option value="no">No drainage holes</option>
-            <option value="leca">No holes but has leca / gravel layer</option>
-            <option value="tray">Yes, but sits in tray</option>
+            <option value="leca">No holes + leca layer</option>
+            <option value="tray">Holes but sits in tray</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Soil type</label>
-          <select class="form-select" id="f-soil">
-            <option value="standard">Standard potting mix</option>
-            <option value="well-draining">Well-draining / perlite mix</option>
-            <option value="moisture-retaining">Moisture-retaining mix</option>
+        <div class="fg">
+          <label class="flbl">Soil type</label>
+          <select class="fsel" id="f-soil">
+            <option value="standard" selected>Standard potting mix</option>
+            <option value="well-draining">Well-draining / perlite</option>
+            <option value="moisture-retaining">Moisture-retaining</option>
             <option value="succulent">Succulent / cactus mix</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Pot size vs. plant</label>
-          <select class="form-select" id="f-potsize">
-            <option value="snug">Snug fit (just right)</option>
+        <div class="fg">
+          <label class="flbl">Pot size vs. plant</label>
+          <select class="fsel" id="f-potsize">
+            <option value="snug" selected>Snug fit</option>
             <option value="large">Oversized pot</option>
             <option value="small">Could use upsizing</option>
           </select>
         </div>
-        <div class="form-group full">
-          <label class="form-label">Fertilizer type</label>
-          <select class="form-select" id="f-ferttype">
-            <option value="liquid">Liquid / water-soluble (every 2 weeks)</option>
-            <option value="concentrated">Concentrated liquid at full strength (monthly)</option>
-            <option value="slowrelease">Slow-release granules (every 3–6 months)</option>
+        <div class="fg full">
+          <label class="flbl">Fertilizer type</label>
+          <select class="fsel" id="f-ferttype">
+            <option value="liquid" selected>Liquid / water-soluble (every 2 wks)</option>
+            <option value="concentrated">Concentrated at full strength (monthly)</option>
+            <option value="slowrelease">Slow-release granules (every 3-6 months)</option>
             <option value="none">Not fertilizing</option>
           </select>
         </div>
       </div>
 
-      <div class="form-section-label">Light conditions</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Window direction</label>
-          <select class="form-select" id="f-dir">
+      <div class="fsec">Light</div>
+      <div class="fgrid">
+        <div class="fg">
+          <label class="flbl">Window direction</label>
+          <select class="fsel" id="f-dir">
             <option value="north">North (least light)</option>
             <option value="east">East (morning sun)</option>
-            <option value="south">South (brightest)</option>
+            <option value="south" selected>South (brightest)</option>
             <option value="west">West (afternoon sun)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Light level</label>
-          <select class="form-select" id="f-light">
+        <div class="fg">
+          <label class="flbl">Light level</label>
+          <select class="fsel" id="f-light">
             <option value="low">Low — far from window</option>
             <option value="medium" selected>Medium — a few feet away</option>
             <option value="bright">Bright indirect</option>
             <option value="direct">Direct sunlight</option>
           </select>
         </div>
-        <div class="form-group full">
-          <label class="form-label">Distance from window</label>
-          <select class="form-select" id="f-dist">
+        <div class="fg full">
+          <label class="flbl">Distance from window</label>
+          <select class="fsel" id="f-dist">
             <option value="very-close">Less than 1 ft</option>
-            <option value="close">1–3 ft</option>
-            <option value="medium" selected>3–6 ft</option>
+            <option value="close">1-3 ft</option>
+            <option value="medium" selected>3-6 ft</option>
             <option value="far">More than 6 ft</option>
           </select>
         </div>
       </div>
 
-      <div class="form-section-label">Room environment</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Room humidity</label>
-          <select class="form-select" id="f-roomhum">
+      <div class="fsec">Environment</div>
+      <div class="fgrid">
+        <div class="fg">
+          <label class="flbl">Room humidity</label>
+          <select class="fsel" id="f-roomhum">
             <option value="dry">Dry (bedroom, living room)</option>
             <option value="average" selected>Average</option>
             <option value="humid">Humid (bathroom, kitchen)</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Near heating / AC vent?</label>
-          <select class="form-select" id="f-vent">
+        <div class="fg">
+          <label class="flbl">Near heating / AC vent?</label>
+          <select class="fsel" id="f-vent">
             <option value="no" selected>No</option>
-            <option value="yes">Yes — near a vent</option>
+            <option value="yes">Yes</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Plant maturity</label>
-          <select class="form-select" id="f-age">
+        <div class="fg">
+          <label class="flbl">Plant maturity</label>
+          <select class="fsel" id="f-age">
             <option value="young">Young / recently repotted</option>
             <option value="established" selected>Established</option>
             <option value="large">Large / mature</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Current soil moisture</label>
-          <select class="form-select" id="f-moisture">
+        <div class="fg">
+          <label class="flbl">Current soil moisture</label>
+          <select class="fsel" id="f-moisture">
             <option value="dry">Dry — needs water now</option>
             <option value="moist" selected>Moist — recently watered</option>
             <option value="wet">Wet — just watered today</option>
@@ -293,846 +364,773 @@
         </div>
       </div>
 
-      <div class="form-section-label">Care history</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Last watered</label>
-          <input type="date" class="form-input" id="f-last-water">
-          <div class="form-help">Leave blank if unknown</div>
+      <div class="fsec">Care history</div>
+      <div class="fgrid">
+        <div class="fg">
+          <label class="flbl">Last watered</label>
+          <input type="date" class="fin" id="f-last-water">
+          <div class="fhelp">Leave blank if unknown</div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Last fertilized</label>
-          <input type="date" class="form-input" id="f-last-feed">
-          <div class="form-help">Leave blank if unknown</div>
+        <div class="fg">
+          <label class="flbl">Last fertilized</label>
+          <input type="date" class="fin" id="f-last-feed">
+          <div class="fhelp">Leave blank if unknown</div>
         </div>
       </div>
 
-      <div class="form-section-label">Notes</div>
-      <div class="form-group">
-        <textarea class="form-textarea" id="f-notes" placeholder="Quirks, pest history, anything worth remembering..."></textarea>
+      <div class="fsec">Notes</div>
+      <div class="fg">
+        <textarea class="fta" id="f-notes" placeholder="Quirks, pest history, anything worth remembering..."></textarea>
       </div>
 
       <button class="submit-btn" id="submit-btn" onclick="submitPlant()">Save plant</button>
     </div>
   </div>
 
+  <!-- Settings -->
   <div id="tab-settings" style="display:none">
-    <div class="settings-card">
-      <div class="settings-title">Location & weather</div>
-      <div class="setting-row">
-        <div><div class="setting-label">ZIP code</div><div class="setting-sub">Pulls local humidity and temperature</div></div>
-        <div class="setting-value" id="zip-display">Not set</div>
+    <div class="scard">
+      <div class="stitle">Location & weather</div>
+      <div class="srow">
+        <div><div class="slbl">ZIP code</div><div class="ssub">Local humidity and temperature</div></div>
+        <div class="sval" id="s-zip">Not set</div>
       </div>
-      <div class="zip-form">
-        <input type="text" class="zip-input" id="zip-input" placeholder="Enter ZIP code" maxlength="5">
+      <div class="zip-row">
+        <input type="text" class="zip-in" id="zip-input" placeholder="Enter ZIP code" maxlength="5">
         <button class="zip-btn" onclick="saveZip()">Save</button>
       </div>
-      <div id="zip-weather-result" style="margin-top:10px;font-size:13px;color:var(--text-mid)"></div>
+      <div id="zip-result" style="margin-top:10px;font-size:13px;color:var(--tm)"></div>
     </div>
-    <div class="settings-card">
-      <div class="settings-title">Current conditions</div>
-      <div class="setting-row"><div><div class="setting-label">Season</div></div><div class="setting-value" id="s-season">—</div></div>
-      <div class="setting-row"><div><div class="setting-label">Humidity</div><div class="setting-sub">From local weather</div></div><div class="setting-value" id="s-humidity">—</div></div>
-      <div class="setting-row"><div><div class="setting-label">Temperature</div></div><div class="setting-value" id="s-temp">—</div></div>
+    <div class="scard">
+      <div class="stitle">Conditions</div>
+      <div class="srow"><div><div class="slbl">Season</div></div><div class="sval" id="s-season">—</div></div>
+      <div class="srow"><div><div class="slbl">Humidity</div><div class="ssub">From local weather</div></div><div class="sval" id="s-humidity">—</div></div>
+      <div class="srow"><div><div class="slbl">Temperature</div></div><div class="sval" id="s-temp">—</div></div>
     </div>
-    <div class="settings-card">
-      <div class="settings-title">Data</div>
-      <div class="setting-row">
-        <div><div class="setting-label">Clear all plants</div><div class="setting-sub">Cannot be undone</div></div>
-        <button onclick="clearAll()" style="background:#fdecea;color:#c0392b;border:none;padding:6px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Clear all</button>
+    <div class="scard">
+      <div class="stitle">Notifications</div>
+      <div class="srow">
+        <div><div class="slbl">Daily reminders</div><div class="ssub">When plants are due or overdue</div></div>
+        <div class="sval" id="s-notif">—</div>
+      </div>
+      <div id="s-notif-btn-row"></div>
+    </div>
+    <div class="scard">
+      <div class="stitle">Data</div>
+      <div class="srow">
+        <div><div class="slbl">Clear all plants</div><div class="ssub">Cannot be undone</div></div>
+        <button class="danger-btn" onclick="clearAll()">Clear all</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Hidden file input — lives outside all cards so it never gets destroyed -->
+<input type="file" id="photo-input" accept="image/*" onchange="handlePhoto(this)">
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="lbOutside(event)">
+  <img class="lb-img" id="lb-img" src="" alt="">
+  <div class="lb-bar">
+    <div class="lb-nav">
+      <button id="lb-prev" onclick="lbNav(-1)">&#8249;</button>
+      <button id="lb-next" onclick="lbNav(1)">&#8250;</button>
+    </div>
+    <span class="lb-label" id="lb-label"></span>
+    <button class="lb-close" onclick="lbClose()">&#10005;</button>
+  </div>
+  <button class="lb-del" onclick="lbDelete()">Delete photo</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-// ═══════════════════════════════════════════════════════
-// PLANT DATABASE — 100+ species
-// baseWater: days between watering (average conditions)
-// feedWks: weeks between fertilizing (growing season)
-// drought: low | medium | high
-// summary: care personality
-// waterTip / feedTip: specific advice
-// ═══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// PLANT DATABASE
+// ════════════════════════════════════════════════════
 const DB = {
-  // ── YOUR SPECIFIC PLANTS ──────────────────────────────
-  "calathea ornata": { emoji:"🌿", name:"Striped Calathea (Calathea ornata)", baseWater:5, feedWks:4, drought:"low", maxFeedWks:3, summary:"Dramatic foliage that's highly sensitive to water quality and humidity. Thrives in consistent moisture but hates soggy roots.", waterTip:"Use filtered or distilled water — tap water causes brown tips. Keep soil evenly moist but never waterlogged.", feedTip:"Fertilize monthly in spring/summer with a diluted balanced fertilizer at half strength." },
-  "sansevieria": { emoji:"🌵", name:"Snake Plant (Sansevieria / Dracaena trifasciata)", baseWater:14, feedWks:8, drought:"high", maxFeedWks:6, summary:"Nearly indestructible and thrives on neglect. Overwatering is its only real enemy, especially in low light.", waterTip:"Water only when soil is completely dry — in winter this may mean once a month. Always err on the dry side.", feedTip:"Feed once in spring and once in summer only. Does not need feeding in fall or winter." },
-  "dracaena fragrans tornado": { emoji:"🌀", name:"Dracaena fragrans Tornado", baseWater:10, feedWks:6, drought:"medium", maxFeedWks:4, summary:"A compact, tightly spiraled Dracaena that tolerates low light well. Sensitive to fluoride — causes brown leaf tips.", waterTip:"Use filtered water if possible. Water when the top 2 inches of soil are dry. Reduce watering significantly in winter.", feedTip:"Feed every 6 weeks in spring and summer with a balanced liquid fertilizer. Skip fall and winter entirely." },
-  "sedum burrito": { emoji:"🪨", name:"Donkey Tail (Sedum burrito)", baseWater:21, feedWks:12, drought:"high", maxFeedWks:8, summary:"A trailing succulent with fragile, bead-like leaves that drop at the slightest touch. Needs excellent drainage and bright light.", waterTip:"Soak and dry thoroughly — water only when soil is bone dry, usually every 3 weeks. Never mist. Reduce to once a month in winter.", feedTip:"Feed just once or twice during the growing season (spring/summer) with a diluted succulent fertilizer." },
-  "tradescantia zebrina": { emoji:"💜", name:"Silver Inch Plant (Tradescantia zebrina)", baseWater:5, feedWks:4, drought:"medium", summary:"Fast-growing and forgiving trailer with stunning silver and purple leaves. More light = more vibrant color.", waterTip:"Water when the top inch of soil feels dry. Tolerates some drought but looks its best with consistent moisture.", feedTip:"Feed every 2–4 weeks in spring and summer with a balanced liquid fertilizer for lush, colorful growth." },
-
-  // ── POTHOS FAMILY ────────────────────────────────────
-  "pothos": { emoji:"🌿", name:"Golden Pothos (Epipremnum aureum)", baseWater:6, feedWks:4, drought:"medium", summary:"The ultimate beginner plant — nearly impossible to kill. Tolerates low light and irregular watering gracefully.", waterTip:"Water when the top 1–2 inches of soil are dry. Yellowing leaves usually means overwatering, not underwatering.", feedTip:"Feed monthly in spring and summer. No feeding needed in fall and winter." },
-  "marble queen pothos": { emoji:"🌿", name:"Marble Queen Pothos", baseWater:6, feedWks:4, drought:"medium", summary:"Variegated pothos that needs more light than golden varieties to maintain its white marbling.", waterTip:"Same as golden pothos — water when top 1–2 inches are dry. Variegated leaves are slightly more sensitive to overwatering.", feedTip:"Feed monthly in growing season. More light means more feeding is beneficial." },
-  "neon pothos": { emoji:"💚", name:"Neon Pothos", baseWater:6, feedWks:4, drought:"medium", summary:"Bright chartreuse pothos that keeps its color best in medium to bright indirect light.", waterTip:"Allow top 1–2 inches to dry between waterings. Very forgiving of missed waterings.", feedTip:"Feed monthly spring through summer with balanced liquid fertilizer." },
-
-  // ── PHILODENDRON ────────────────────────────────────
-  "philodendron": { emoji:"🌿", name:"Heartleaf Philodendron", baseWater:6, feedWks:4, drought:"medium", summary:"Easy-going vining plant that grows quickly in most indoor conditions. Similar to pothos in care.", waterTip:"Water when the top inch of soil is dry. Drooping leaves are a reliable signal it needs water.", feedTip:"Feed monthly spring through summer. Slow-release fertilizer works well." },
-  "philodendron brasil": { emoji:"🌿", name:"Philodendron Brasil", baseWater:7, feedWks:4, drought:"medium", summary:"Variegated heartleaf philodendron with yellow-green streaks. Needs bright indirect light to keep variegation.", waterTip:"Water when top inch is dry. Very similar to heartleaf care — forgiving and reliable.", feedTip:"Feed every 4 weeks in spring and summer." },
-  "philodendron birkin": { emoji:"🌿", name:"Philodendron Birkin", baseWater:8, feedWks:4, drought:"medium", summary:"Compact upright philodendron with striking white pinstripes. Slower growing than vining varieties.", waterTip:"Allow top 1–2 inches to dry before watering. Sensitive to overwatering.", feedTip:"Feed monthly during growing season." },
-  "philodendron gloriosum": { emoji:"🌿", name:"Philodendron Gloriosum", baseWater:8, feedWks:4, drought:"medium", summary:"Stunning crawler with velvety heart-shaped leaves. Needs high humidity to look its best.", waterTip:"Keep soil lightly moist but not soggy. Water when top inch is dry.", feedTip:"Feed every 4 weeks spring through summer." },
-
-  // ── MONSTERA ────────────────────────────────────────
-  "monstera": { emoji:"🌿", name:"Monstera deliciosa", baseWater:8, feedWks:4, drought:"medium", summary:"Iconic split-leaf plant that grows large and fast in bright indirect light. Very forgiving.", waterTip:"Water when the top 1–2 inches of soil are dry. Avoid letting it sit in water.", feedTip:"Feed every 4 weeks spring through summer with a balanced fertilizer." },
-  "monstera adansonii": { emoji:"🌿", name:"Monstera adansonii (Swiss Cheese)", baseWater:7, feedWks:4, drought:"medium", summary:"Smaller fenestrated monstera that prefers to climb. Needs more humidity than deliciosa.", waterTip:"Keep slightly more moist than deliciosa. Water when top inch is dry.", feedTip:"Feed monthly in growing season." },
-  "monstera thai constellation": { emoji:"🌿", name:"Monstera Thai Constellation", baseWater:10, feedWks:4, drought:"medium", summary:"Rare variegated monstera that grows slowly. The creamy variegation is stable and won't revert.", waterTip:"Same as standard monstera but be extra careful not to overwater — variegated sections are more prone to rot.", feedTip:"Feed monthly in spring and summer only." },
-
-  // ── CALATHEA / PRAYER PLANTS ─────────────────────────
-  "calathea": { emoji:"🌿", name:"Calathea (general)", baseWater:6, feedWks:4, drought:"low", maxFeedWks:3, summary:"Dramatic foliage plants that move their leaves day and night. Demanding about water quality and humidity.", waterTip:"Use filtered or distilled water. Keep soil consistently moist but never waterlogged.", feedTip:"Feed monthly spring through summer at half strength." },
-  "calathea medallion": { emoji:"🌿", name:"Calathea Medallion", baseWater:7, feedWks:4, drought:"low", maxFeedWks:3, summary:"Bold circular leaves with deep purple undersides. Needs high humidity and filtered water.", waterTip:"Water with distilled water when top inch is dry. Mist regularly or use a humidifier nearby.", feedTip:"Feed monthly in growing season at half the recommended dose." },
-  "maranta": { emoji:"🌿", name:"Prayer Plant (Maranta leuconeura)", baseWater:7, feedWks:4, drought:"low", summary:"Folds its leaves upward at night like hands in prayer. Easier than calathea but still prefers humidity.", waterTip:"Keep soil evenly moist in spring and summer, slightly drier in winter. Use room-temperature water.", feedTip:"Feed every 2 weeks spring through summer with diluted balanced fertilizer." },
-  "stromanthe": { emoji:"🌿", name:"Stromanthe Triostar", baseWater:7, feedWks:4, drought:"low", summary:"Stunning pink-variegated prayer plant relative. One of the most dramatic houseplants available.", waterTip:"Use distilled or rainwater. Keep consistently moist but well-draining. High humidity essential.", feedTip:"Feed monthly in spring and summer at half strength." },
-
-  // ── FICUS ───────────────────────────────────────────
-  "fiddle leaf fig": { emoji:"🍃", name:"Fiddle Leaf Fig (Ficus lyrata)", baseWater:7, feedWks:3, drought:"low", maxFeedWks:3, summary:"Dramatic but finicky statement plant. Hates being moved, drafts, or inconsistent watering.", waterTip:"Water when the top inch is dry — consistency is key. Use the same amount of water each time.", feedTip:"Feed every 2–3 weeks in spring and summer with a high-nitrogen fertilizer." },
-  "rubber plant": { emoji:"🍃", name:"Rubber Plant (Ficus elastica)", baseWater:10, feedWks:4, drought:"medium", summary:"Bold, glossy leaves in burgundy or green. Much easier than fiddle leaf fig and tolerates some neglect.", waterTip:"Water when the top 1–2 inches of soil are dry. Wipe leaves with a damp cloth monthly.", feedTip:"Feed monthly spring through summer." },
-  "ficus benjamina": { emoji:"🍃", name:"Weeping Fig (Ficus benjamina)", baseWater:7, feedWks:4, drought:"medium", summary:"Elegant tree form that drops leaves dramatically when stressed by drafts or being moved.", waterTip:"Keep soil evenly moist. Avoid letting it dry out completely.", feedTip:"Feed every 4 weeks spring through summer." },
-
-  // ── SUCCULENTS & CACTI ──────────────────────────────
-  "succulent": { emoji:"🌵", name:"Succulent (general)", baseWater:21, feedWks:12, drought:"high", maxFeedWks:8, summary:"Stores water in its leaves for long dry periods. The most common mistake is overwatering.", waterTip:"Water deeply then let soil dry completely — typically every 2–3 weeks. Always use well-draining soil.", feedTip:"Feed once or twice per year in spring with a diluted succulent fertilizer." },
-  "echeveria": { emoji:"🌸", name:"Echeveria", baseWater:14, feedWks:12, drought:"high", maxFeedWks:8, summary:"Rosette-forming succulent that needs bright light to maintain its compact, colorful form.", waterTip:"Water at the base, never on the rosette — trapped water causes rot. Let dry completely between waterings.", feedTip:"Feed once in spring with diluted succulent fertilizer." },
-  "haworthia": { emoji:"🌵", name:"Haworthia", baseWater:14, feedWks:12, drought:"high", maxFeedWks:8, summary:"Tolerates lower light than most succulents. A great windowsill plant that's very forgiving.", waterTip:"Water when soil is completely dry. Tolerates irregular watering better than most plants.", feedTip:"Feed once or twice per year in spring and summer only." },
-  "aloe vera": { emoji:"🌵", name:"Aloe Vera", baseWater:14, feedWks:8, drought:"high", maxFeedWks:8, summary:"Medicinal succulent with thick water-storing leaves. Root rot from overwatering is the main risk.", waterTip:"Water deeply every 2–3 weeks in summer, once a month in winter. Ensure excellent drainage.", feedTip:"Feed once in spring and once in summer with diluted cactus fertilizer." },
-  "cactus": { emoji:"🌵", name:"Cactus (general)", baseWater:28, feedWks:12, drought:"high", maxFeedWks:8, summary:"Extreme drought tolerance — survives months without water in winter. Needs maximum light.", waterTip:"Water thoroughly in summer, then let dry completely. In winter, water only once a month or less.", feedTip:"Feed once a month in spring and summer with a low-nitrogen cactus fertilizer." },
-  "string of pearls": { emoji:"🟢", name:"String of Pearls (Senecio rowleyanus)", baseWater:14, feedWks:12, drought:"high", maxFeedWks:8, summary:"Delicate trailing succulent with bead-like leaves. Needs bright light and excellent drainage.", waterTip:"Water when the 'pearls' start to look slightly shriveled. Overwatering causes rot quickly.", feedTip:"Feed once a month in spring and summer very lightly." },
-  "burros tail": { emoji:"🪨", name:"Burro's Tail (Sedum morganianum)", baseWater:21, feedWks:12, drought:"high", maxFeedWks:8, summary:"Similar to donkey tail — fragile leaves, needs bright light and drought conditions.", waterTip:"Extremely drought tolerant. Water every 3 weeks in summer, monthly in winter.", feedTip:"Feed once in spring with diluted succulent fertilizer." },
-  "christmas cactus": { emoji:"🌸", name:"Christmas Cactus (Schlumbergera)", baseWater:10, feedWks:4, drought:"medium", summary:"Blooms around winter holidays. Needs a cool dark period in fall to trigger flowering.", waterTip:"More moisture than desert cacti — water when top inch is dry. Reduce in fall to trigger blooming.", feedTip:"Feed every 2 weeks spring through summer. Stop feeding in fall to encourage blooms." },
-
-  // ── FERNS ───────────────────────────────────────────
-  "fern": { emoji:"🌿", name:"Fern (general)", baseWater:3, feedWks:4, drought:"low", summary:"Loves consistent moisture and humidity. Will go brown and crispy quickly if allowed to dry out.", waterTip:"Keep soil consistently moist but not waterlogged. Mist regularly or place on a pebble tray with water.", feedTip:"Feed monthly spring through summer with a half-strength balanced fertilizer." },
-  "boston fern": { emoji:"🌿", name:"Boston Fern (Nephrolepis exaltata)", baseWater:4, feedWks:4, drought:"low", summary:"Lush, arching fronds that need high humidity and consistent moisture to thrive.", waterTip:"Never let soil dry out. Water 2–3 times per week in summer, less in winter. Mist daily if possible.", feedTip:"Feed every 2 weeks in spring and summer with balanced liquid fertilizer." },
-  "maidenhair fern": { emoji:"🌿", name:"Maidenhair Fern (Adiantum)", baseWater:2, feedWks:4, drought:"low", summary:"One of the most demanding ferns — needs perfect moisture balance and high humidity constantly.", waterTip:"Water every 2–3 days. Maidenhair will collapse within hours of drying out.", feedTip:"Feed monthly at half strength spring through summer." },
-  "bird's nest fern": { emoji:"🌿", name:"Bird's Nest Fern (Asplenium nidus)", baseWater:7, feedWks:6, drought:"low", summary:"More tolerant than other ferns. Avoid getting water in the crown — causes rot.", waterTip:"Water around the edges of the pot, not into the center rosette. Keep soil moist but not soggy.", feedTip:"Feed every 4–6 weeks in growing season." },
-
-  // ── ZZ, SNAKE & DRACAENA ────────────────────────────
-  "zz plant": { emoji:"🌱", name:"ZZ Plant (Zamioculcas zamiifolia)", baseWater:14, feedWks:8, drought:"high", maxFeedWks:6, summary:"Thrives on neglect and tolerates near-darkness. Stores water in thick rhizomes underground.", waterTip:"Water only when soil is completely dry — every 2–3 weeks in summer, monthly in winter.", feedTip:"Feed once in spring and once in summer. Does not need regular feeding." },
-  "dracaena": { emoji:"🌴", name:"Dracaena (general)", baseWater:10, feedWks:6, drought:"medium", maxFeedWks:4, summary:"Architectural plant tolerant of low light and some drought. Sensitive to fluoride in tap water.", waterTip:"Use filtered water if possible. Water when top 2 inches are dry. Reduce in winter.", feedTip:"Feed every 6 weeks in spring and summer only." },
-  "dracaena marginata": { emoji:"🌴", name:"Dragon Tree (Dracaena marginata)", baseWater:10, feedWks:6, drought:"medium", maxFeedWks:4, summary:"Spiky architectural plant that tolerates low light. One of the easiest dracaenas.", waterTip:"Allow top half of soil to dry between waterings. Very drought tolerant once established.", feedTip:"Feed monthly spring through summer." },
-  "dracaena sanderiana": { emoji:"🎍", name:"Lucky Bamboo (Dracaena sanderiana)", baseWater:7, feedWks:8, drought:"medium", summary:"Often grown in water — if in soil, keep consistently moist. Sensitive to chlorinated water.", waterTip:"If in water, change the water every 2 weeks. If in soil, water when top inch is dry.", feedTip:"Feed very lightly every 6–8 weeks in growing season." },
-
-  // ── PEACE LILY & SPATHIPHYLLUM ──────────────────────
-  "peace lily": { emoji:"🌸", name:"Peace Lily (Spathiphyllum)", baseWater:6, feedWks:4, drought:"low", summary:"One of the best low-light plants. Droops dramatically when thirsty — a very reliable signal.", waterTip:"Water when leaves begin to droop slightly. Tolerates this drama well but recover quickly after watering.", feedTip:"Feed every 6 weeks spring through summer for best blooming." },
-
-  // ── SPIDER PLANT ────────────────────────────────────
-  "spider plant": { emoji:"🕷", name:"Spider Plant (Chlorophytum comosum)", baseWater:6, feedWks:4, drought:"medium", summary:"Incredibly adaptable and produces hanging 'babies' readily. Very forgiving of neglect.", waterTip:"Water when top 1–2 inches are dry. Produces more spiderettes when slightly root-bound.", feedTip:"Feed every 2 weeks in spring and summer for prolific growth." },
-
-  // ── ORCHIDS ─────────────────────────────────────────
-  "orchid": { emoji:"🌸", name:"Phalaenopsis Orchid", baseWater:10, feedWks:4, drought:"medium", maxFeedWks:4, summary:"Blooms for months then rests. Needs a cool night to rebloom. Roots should dry between waterings.", waterTip:"Water by soaking the pot in water for 15 minutes, then drain completely. Never let roots sit in water.", feedTip:"Feed weakly weekly ('weakly weekly') with orchid fertilizer when not in bloom." },
-  "dendrobium": { emoji:"🌸", name:"Dendrobium Orchid", baseWater:7, feedWks:4, drought:"medium", summary:"Needs a dry rest period after blooming to trigger reblooming. More light than phalaenopsis.", waterTip:"Water freely when growing, reduce to almost nothing in winter rest period.", feedTip:"Feed every 2 weeks during growing season with orchid fertilizer." },
-
-  // ── BROMELIADS & TROPICALS ───────────────────────────
-  "bromeliad": { emoji:"🌺", name:"Bromeliad", baseWater:10, feedWks:8, drought:"medium", summary:"Water into the central cup, not the soil. Blooms once then produces pups.", waterTip:"Keep the central cup filled with water. Change it every week to prevent stagnation. Water soil monthly.", feedTip:"Feed very lightly — add diluted fertilizer to the cup once a month in growing season." },
-  "bird of paradise": { emoji:"🌺", name:"Bird of Paradise (Strelitzia)", baseWater:8, feedWks:3, drought:"medium", summary:"Dramatic large-leafed tropical that needs lots of light to bloom indoors. Very hungry feeder.", waterTip:"Water when top 2 inches are dry. Tolerates some drought but grows faster with consistent moisture.", feedTip:"Feed every 2 weeks spring through summer — one of the heaviest feeders of common houseplants." },
-  "anthurium": { emoji:"🌺", name:"Anthurium", baseWater:7, feedWks:4, drought:"medium", summary:"Waxy heart-shaped blooms that last for months. Needs bright indirect light to rebloom.", waterTip:"Water when top 1–2 inches are dry. High humidity improves leaf texture and blooming.", feedTip:"Feed every 6–8 weeks with a phosphorus-rich fertilizer to encourage blooming." },
-  "heliconia": { emoji:"🌺", name:"Heliconia", baseWater:7, feedWks:3, drought:"low", summary:"Tropical statement plant needing warmth, humidity and consistent moisture.", waterTip:"Keep soil consistently moist. Never let dry out completely.", feedTip:"Feed every 2–3 weeks during growing season." },
-
-  // ── PALMS ───────────────────────────────────────────
-  "palm": { emoji:"🌴", name:"Palm (general)", baseWater:7, feedWks:4, drought:"medium", summary:"Needs bright light and consistent moisture. Brown tips often indicate low humidity or fluoride.", waterTip:"Use filtered water if possible. Water when top inch is dry. Ensure good drainage.", feedTip:"Feed monthly spring through summer with palm-specific fertilizer." },
-  "areca palm": { emoji:"🌴", name:"Areca Palm (Dypsis lutescens)", baseWater:7, feedWks:4, drought:"medium", summary:"Elegant multi-stemmed palm and an excellent air purifier. Needs bright indirect light.", waterTip:"Keep soil lightly moist in summer. Allow to dry slightly between waterings in winter.", feedTip:"Feed every 4 weeks spring through summer." },
-  "parlor palm": { emoji:"🌴", name:"Parlor Palm (Chamaedorea elegans)", baseWater:7, feedWks:6, drought:"medium", summary:"One of the best low-light palms. Slow growing but very tolerant of indoor conditions.", waterTip:"Water when top inch is dry. Avoid overwatering — one of the most common mistakes.", feedTip:"Feed every 6 weeks in growing season. Less feeding than other palms." },
-  "kentia palm": { emoji:"🌴", name:"Kentia Palm (Howea forsteriana)", baseWater:10, feedWks:6, drought:"medium", maxFeedWks:6, summary:"Elegant slow-growing palm tolerant of low light and some neglect. Very long-lived.", waterTip:"Allow top 2 inches to dry between waterings. Very sensitive to overwatering.", feedTip:"Feed sparingly — every 6–8 weeks in growing season only." },
-
-  // ── AIR PLANTS & BROMELIADS ─────────────────────────
-  "air plant": { emoji:"🌬", name:"Air Plant (Tillandsia)", baseWater:7, feedWks:4, drought:"medium", summary:"Grows without soil — absorbs water through its leaves. Needs good air circulation after watering.", waterTip:"Soak in water for 20–30 minutes weekly. Shake off excess and allow to dry completely within 4 hours.", feedTip:"Add diluted bromeliad fertilizer to soaking water monthly." },
-
-  // ── IVY & TRAILING ──────────────────────────────────
-  "ivy": { emoji:"🌿", name:"English Ivy (Hedera helix)", baseWater:7, feedWks:4, drought:"medium", summary:"Classic trailing plant that prefers cooler temperatures. Watch for spider mites.", waterTip:"Water when top inch is dry. Prefers slightly cooler and more humid conditions than most houseplants.", feedTip:"Feed monthly in spring and summer." },
-  "string of hearts": { emoji:"💚", name:"String of Hearts (Ceropegia woodii)", baseWater:14, feedWks:8, drought:"high", maxFeedWks:8, summary:"Delicate trailing succulent-like plant with heart-shaped leaves. Very drought tolerant.", waterTip:"Allow to dry completely between waterings. Tubers store water — overwatering is the main risk.", feedTip:"Feed once a month in spring and summer with diluted balanced fertilizer." },
-  "hoya": { emoji:"🌿", name:"Hoya (Wax Plant)", baseWater:10, feedWks:4, drought:"medium", summary:"Slow-growing vining plant that blooms with clusters of waxy flowers. Thrives when slightly root-bound.", waterTip:"Allow soil to dry almost completely between waterings. Blooms more when slightly stressed.", feedTip:"Feed every 4 weeks in growing season with a high-phosphorus fertilizer to encourage blooming." },
-  "tradescantia": { emoji:"💜", name:"Tradescantia (Spiderwort)", baseWater:5, feedWks:4, drought:"medium", summary:"Fast-growing trailing plant with purple or green foliage. Very easy and forgiving.", waterTip:"Water when top inch is dry. Tolerates some drought but grows faster with regular watering.", feedTip:"Feed monthly spring through summer." },
-
-  // ── BEGONIAS ────────────────────────────────────────
-  "begonia": { emoji:"🌸", name:"Begonia (general)", baseWater:7, feedWks:3, drought:"medium", summary:"Prolific bloomers that need bright indirect light. Sensitive to overwatering and soggy soil.", waterTip:"Water when top inch is dry. Allow good airflow to prevent powdery mildew.", feedTip:"Feed every 2–3 weeks in growing season with a bloom-boosting fertilizer." },
-  "rex begonia": { emoji:"🌸", name:"Rex Begonia", baseWater:7, feedWks:4, drought:"medium", summary:"Grown for its spectacular foliage rather than flowers. Needs high humidity.", waterTip:"Water from below to avoid wetting leaves. Keep humidity high.", feedTip:"Feed monthly spring through summer at half strength." },
-
-  // ── CAST IRON & ASPIDISTRA ──────────────────────────
-  "cast iron plant": { emoji:"🌿", name:"Cast Iron Plant (Aspidistra elatior)", baseWater:14, feedWks:8, drought:"high", maxFeedWks:8, summary:"Lives up to its name — virtually indestructible. Tolerates deep shade, drought, and neglect.", waterTip:"Water when soil is dry. One of the most drought-tolerant non-succulent houseplants.", feedTip:"Feed once in spring and once in summer. Does not need regular feeding." },
-
-  // ── CROTON ──────────────────────────────────────────
-  "croton": { emoji:"🍂", name:"Croton (Codiaeum variegatum)", baseWater:7, feedWks:3, drought:"low", summary:"Spectacular multicolored foliage that needs maximum light to stay vivid. Drops leaves when stressed.", waterTip:"Keep soil consistently moist. Drooping or leaf drop indicates either over- or under-watering.", feedTip:"Feed every 3 weeks in growing season with a balanced liquid fertilizer." },
-
-  // ── NERVE PLANT & SMALL TROPICALS ───────────────────
-  "nerve plant": { emoji:"🌿", name:"Nerve Plant (Fittonia)", baseWater:3, feedWks:4, drought:"low", summary:"Tiny plant with dramatic veining that wilts theatrically when thirsty — but recovers quickly.", waterTip:"Water when it starts to wilt slightly. Needs high humidity. Terrariums are ideal.", feedTip:"Feed monthly at quarter strength in spring and summer." },
-  "pilea": { emoji:"🌿", name:"Pilea peperomioides (Chinese Money Plant)", baseWater:7, feedWks:4, drought:"medium", summary:"Cheerful round-leafed plant that produces offsets freely. Rotate regularly for even growth.", waterTip:"Water when top inch is dry. Leaves will cup slightly when thirsty.", feedTip:"Feed monthly spring through summer." },
-  "peperomia": { emoji:"🌿", name:"Peperomia (general)", baseWater:10, feedWks:6, drought:"medium", summary:"Compact plants that store water in thick leaves. Very forgiving and easy to care for.", waterTip:"Allow soil to dry halfway before watering. Far more forgiving of underwatering than overwatering.", feedTip:"Feed every 6 weeks in spring and summer only." },
-  "peperomia watermelon": { emoji:"🍉", name:"Watermelon Peperomia", baseWater:10, feedWks:6, drought:"medium", summary:"Distinctive watermelon-patterned leaves. Thrives in bright indirect light and doesn't need much water.", waterTip:"Allow top half of soil to dry between waterings. Sensitive to overwatering.", feedTip:"Feed monthly in growing season at half strength." },
-
-  // ── CHINESE EVERGREEN ───────────────────────────────
-  "chinese evergreen": { emoji:"🌿", name:"Chinese Evergreen (Aglaonema)", baseWater:10, feedWks:6, drought:"medium", summary:"Extremely tolerant of low light and irregular watering. One of the easiest houseplants.", waterTip:"Water when top 1–2 inches are dry. Tolerates drying out occasionally.", feedTip:"Feed every 6–8 weeks in spring and summer." },
-
-  // ── DIEFFENBACHIA ────────────────────────────────────
-  "dieffenbachia": { emoji:"🌿", name:"Dieffenbachia (Dumb Cane)", baseWater:7, feedWks:4, drought:"medium", summary:"Bold tropical foliage that tolerates low light. Sap is toxic — wear gloves when handling.", waterTip:"Water when top inch is dry. Yellowing lower leaves usually indicate overwatering.", feedTip:"Feed every 4 weeks spring through summer." },
-
-  // ── YUCCA ───────────────────────────────────────────
-  "yucca": { emoji:"🌵", name:"Yucca", baseWater:14, feedWks:8, drought:"high", maxFeedWks:8, summary:"Architectural desert plant that needs maximum light and minimal water. Very drought tolerant.", waterTip:"Water deeply then allow to dry completely. In winter, water once a month or less.", feedTip:"Feed once in spring and once in summer only." },
-
-  // ── SCHEFFLERA / UMBRELLA ───────────────────────────
-  "schefflera": { emoji:"🌿", name:"Schefflera (Umbrella Plant)", baseWater:7, feedWks:4, drought:"medium", summary:"Dramatic umbrella-shaped leaf clusters. Drops leaves if moved or in drafts.", waterTip:"Water when top inch is dry. Mist occasionally to maintain humidity.", feedTip:"Feed monthly spring through summer." },
-
-  // ── OXALIS ──────────────────────────────────────────
-  "oxalis": { emoji:"🍀", name:"Oxalis (Shamrock Plant)", baseWater:7, feedWks:4, drought:"medium", summary:"Folds its clover-like leaves at night and in dim light. Goes dormant in summer — this is normal.", waterTip:"Water when top inch is dry. Reduce watering significantly during summer dormancy.", feedTip:"Feed monthly in spring and fall (its active seasons). Skip summer and winter." },
-
-  // ── ADENIUM ─────────────────────────────────────────
-  "adenium": { emoji:"🌸", name:"Desert Rose (Adenium obesum)", baseWater:14, feedWks:6, drought:"high", summary:"Exotic succulent tree with stunning flowers. Needs maximum light and minimal winter water.", waterTip:"Water when soil is completely dry. In winter, water once a month only.", feedTip:"Feed every 2 weeks in spring and summer with a bloom-boosting fertilizer." },
-
-  // ── UMBRELLA PAPYRUS ─────────────────────────────────
-  "papyrus": { emoji:"🌾", name:"Umbrella Papyrus (Cyperus alternifolius)", baseWater:3, feedWks:4, drought:"low", summary:"One of the few plants that actually thrives sitting in standing water. Never let it dry out.", waterTip:"Keep constantly wet — sit in a tray of water at all times. This plant cannot be overwatered.", feedTip:"Feed monthly in growing season." },
-
-  // ── BAMBOO ──────────────────────────────────────────
-  "bamboo palm": { emoji:"🎍", name:"Bamboo Palm (Chamaedorea seifrizii)", baseWater:7, feedWks:4, drought:"medium", summary:"Excellent air purifier that tolerates lower light than most palms.", waterTip:"Keep soil evenly moist but not soggy.", feedTip:"Feed monthly spring through summer." },
-
-  // ── CALATHEA VARIETIES ──────────────────────────────
-  "calathea lancifolia": { emoji:"🌿", name:"Rattlesnake Plant (Calathea lancifolia)", baseWater:7, feedWks:4, drought:"low", summary:"Long wavy leaves with distinctive dark spots. Slightly more tolerant than other calatheas.", waterTip:"Use filtered water. Keep soil evenly moist. Higher humidity prevents brown edges.", feedTip:"Feed monthly spring through summer at half strength." },
-  "calathea zebrina": { emoji:"🌿", name:"Calathea Zebrina", baseWater:7, feedWks:4, drought:"low", summary:"Velvety zebra-striped leaves. Among the more demanding calatheas for humidity.", waterTip:"Distilled water only. Mist regularly or use a humidifier. Keep consistently moist.", feedTip:"Feed monthly in growing season at half strength." },
-
-  // ── ELEPHANT EAR ────────────────────────────────────
-  "alocasia": { emoji:"🌿", name:"Alocasia (Elephant Ear)", baseWater:6, feedWks:3, drought:"low", summary:"Dramatic arrow-shaped leaves that need warmth, humidity and bright indirect light.", waterTip:"Keep soil moist but well-draining. Goes dormant in winter — reduce watering significantly.", feedTip:"Feed every 2–3 weeks in growing season with a balanced fertilizer." },
-  "colocasia": { emoji:"🌿", name:"Colocasia (Taro)", baseWater:5, feedWks:3, drought:"low", summary:"Large-leafed tropical that loves moisture and warmth. More vigorous grower than alocasia.", waterTip:"Keep soil consistently moist. Can even tolerate sitting in shallow water.", feedTip:"Feed every 2 weeks in growing season." },
-
-  // ── EPISCIA / COLUMNEA ──────────────────────────────
-  "episcia": { emoji:"🌺", name:"Episcia (Flame Violet)", baseWater:5, feedWks:4, drought:"low", summary:"Trailing plant with colorful leaves and small flowers. Needs warmth and high humidity.", waterTip:"Keep consistently moist. Very sensitive to cold water — always use room-temperature water.", feedTip:"Feed every 2 weeks spring through summer." },
-
-  // ── ADDITIONAL COMMON PLANTS ───────────────────────
-  "wandering jew": { emoji:"💜", name:"Wandering Dude (Tradescantia fluminensis)", baseWater:5, feedWks:4, drought:"medium", summary:"Fast-growing trailer with purple-striped leaves. Easy and forgiving.", waterTip:"Water when top inch is dry. Pinch back leggy growth to keep bushy.", feedTip:"Feed monthly spring through summer." },
-  "swiss cheese plant": { emoji:"🌿", name:"Swiss Cheese Plant (Monstera adansonii)", baseWater:7, feedWks:4, drought:"medium", summary:"Smaller fenestrated monstera relative with oval holes in the leaves.", waterTip:"Water when top inch is dry. Appreciates higher humidity than deliciosa.", feedTip:"Feed monthly in growing season." },
-  "umbrella plant": { emoji:"🌿", name:"Umbrella Plant (Schefflera arboricola)", baseWater:7, feedWks:4, drought:"medium", summary:"Compact umbrella plant that tolerates lower light than its larger cousin.", waterTip:"Allow top inch to dry before watering. Sensitive to overwatering.", feedTip:"Feed monthly spring through summer." },
-  "polka dot plant": { emoji:"🌸", name:"Polka Dot Plant (Hypoestes phyllostachya)", baseWater:5, feedWks:4, drought:"low", summary:"Bright spotted foliage in pink, red or white. Tends to get leggy — pinch regularly.", waterTip:"Keep consistently moist. Wilts quickly when dry but recovers fast after watering.", feedTip:"Feed every 2 weeks in spring and summer." },
-  "african violet": { emoji:"💜", name:"African Violet (Saintpaulia)", baseWater:7, feedWks:3, drought:"medium", summary:"Compact bloomer that flowers nearly year-round in bright indirect light.", waterTip:"Water from below to avoid leaf spotting. Use room-temperature water only.", feedTip:"Feed every 2–3 weeks with African violet fertilizer for continuous blooming." },
-  "gardenia": { emoji:"🌸", name:"Gardenia", baseWater:5, feedWks:3, drought:"low", summary:"Intoxicatingly fragrant but demanding — needs high humidity, acidic soil, and bright light.", waterTip:"Keep consistently moist with distilled or rainwater. High humidity is essential.", feedTip:"Feed every 2–3 weeks in growing season with acid fertilizer." },
-  "jasmine": { emoji:"🌸", name:"Jasmine", baseWater:7, feedWks:3, drought:"medium", summary:"Fragrant flowering vine that needs a cool period to bloom. Needs support to climb.", waterTip:"Water freely when growing, reduce in winter rest period.", feedTip:"Feed every 2 weeks spring through summer with a bloom fertilizer." },
-  "lavender": { emoji:"💜", name:"Lavender", baseWater:14, feedWks:8, drought:"high", summary:"Mediterranean herb that needs maximum light and excellent drainage. Hates humidity.", waterTip:"Allow to dry completely between waterings. Root rot is the main risk.", feedTip:"Feed once in spring only with a low-nitrogen fertilizer." },
-  "rosemary": { emoji:"🌿", name:"Rosemary", baseWater:10, feedWks:8, drought:"high", summary:"Aromatic herb that needs maximum light. Struggles indoors without very bright conditions.", waterTip:"Allow to dry between waterings. Mist occasionally but ensure good airflow.", feedTip:"Feed monthly spring through summer with balanced fertilizer." },
-  "mint": { emoji:"🌿", name:"Mint", baseWater:4, feedWks:4, drought:"low", summary:"Vigorous grower that spreads aggressively. Keep moist and in bright light.", waterTip:"Keep consistently moist. Never allow to dry out.", feedTip:"Feed every 4 weeks in growing season." },
-  "basil": { emoji:"🌿", name:"Basil", baseWater:4, feedWks:4, drought:"low", summary:"Needs maximum sun and warmth. Pinch flowers to keep producing leaves.", waterTip:"Water daily in warm weather. Wilts dramatically when dry but recovers quickly.", feedTip:"Feed every 2–4 weeks with a balanced liquid fertilizer." },
+  "calathea ornata":      { e:"🌿", n:"Striped Calathea (Calathea ornata)",       w:5,  f:3,  mf:3,  d:"low",    s:"Sensitive to water quality and humidity. Thrives in consistent moisture but hates soggy roots.",                       wt:"Use filtered or distilled water — tap water causes brown tips. Keep soil evenly moist but never waterlogged.", ft:"Feed every 3 weeks spring/summer at half strength." },
+  "sansevieria":          { e:"🌵", n:"Snake Plant (Sansevieria)",                 w:14, f:8,  mf:6,  d:"high",   s:"Thrives on neglect. Overwatering is its only real enemy, especially in low light.",                                  wt:"Water only when soil is completely dry. In winter this may mean once a month.", ft:"Feed once in spring and once in summer only." },
+  "dracaena fragrans tornado":{ e:"🌀", n:"Dracaena fragrans Tornado",             w:10, f:6,  mf:4,  d:"medium", s:"Compact tightly spiraled Dracaena tolerant of low light. Sensitive to fluoride — causes brown tips.",               wt:"Use filtered water if possible. Water when top 2 inches are dry. Reduce significantly in winter.", ft:"Feed every 4-6 weeks spring and summer only." },
+  "sedum burrito":        { e:"🪨", n:"Donkey Tail (Sedum burrito)",               w:21, f:12, mf:8,  d:"high",   s:"Trailing succulent with fragile bead-like leaves that drop at the slightest touch. Needs excellent drainage.",       wt:"Soak and dry thoroughly — water only when bone dry. Never mist. Reduce to once a month in winter.", ft:"Feed once or twice during growing season with diluted succulent fertilizer." },
+  "tradescantia zebrina": { e:"💜", n:"Silver Inch Plant (Tradescantia zebrina)", w:5,  f:4,  mf:null,d:"medium", s:"Fast-growing forgiving trailer with stunning silver and purple leaves. More light equals more vibrant color.",        wt:"Water when the top inch of soil feels dry. Tolerates some drought but looks best with consistent moisture.", ft:"Feed every 2-4 weeks spring and summer." },
+  "pothos":               { e:"🌿", n:"Golden Pothos",                             w:6,  f:4,  mf:null,d:"medium", s:"Nearly impossible to kill. Tolerates low light and irregular watering gracefully.",                                  wt:"Water when top 1-2 inches are dry. Yellowing leaves usually means overwatering.", ft:"Feed monthly in spring and summer." },
+  "marble queen pothos":  { e:"🌿", n:"Marble Queen Pothos",                      w:6,  f:4,  mf:null,d:"medium", s:"Variegated pothos needing more light than golden varieties to maintain white marbling.",                             wt:"Water when top 1-2 inches are dry. Variegated leaves slightly more sensitive to overwatering.", ft:"Feed monthly in growing season." },
+  "neon pothos":          { e:"💚", n:"Neon Pothos",                               w:6,  f:4,  mf:null,d:"medium", s:"Bright chartreuse pothos that keeps its color best in medium to bright indirect light.",                             wt:"Allow top 1-2 inches to dry between waterings. Very forgiving of missed waterings.", ft:"Feed monthly spring through summer." },
+  "philodendron":         { e:"🌿", n:"Heartleaf Philodendron",                   w:6,  f:4,  mf:null,d:"medium", s:"Easy-going vining plant that grows quickly in most indoor conditions.",                                              wt:"Water when the top inch of soil is dry. Drooping leaves are a reliable signal it needs water.", ft:"Feed monthly spring through summer." },
+  "philodendron brasil":  { e:"🌿", n:"Philodendron Brasil",                      w:6,  f:4,  mf:null,d:"medium", s:"Variegated heartleaf philodendron needing bright indirect light to keep variegation.",                               wt:"Water when top inch is dry. Forgiving and reliable.", ft:"Feed every 4 weeks in spring and summer." },
+  "philodendron birkin":  { e:"🌿", n:"Philodendron Birkin",                      w:8,  f:4,  mf:null,d:"medium", s:"Compact upright philodendron with striking white pinstripes. Slower growing.",                                       wt:"Allow top 1-2 inches to dry before watering. Sensitive to overwatering.", ft:"Feed monthly during growing season." },
+  "monstera":             { e:"🌿", n:"Monstera deliciosa",                        w:8,  f:4,  mf:null,d:"medium", s:"Iconic split-leaf plant that grows large and fast in bright indirect light. Very forgiving.",                        wt:"Water when top 1-2 inches of soil are dry. Avoid letting it sit in water.", ft:"Feed every 4 weeks spring through summer." },
+  "monstera adansonii":   { e:"🌿", n:"Monstera adansonii (Swiss Cheese)",        w:7,  f:4,  mf:null,d:"medium", s:"Smaller fenestrated monstera that prefers to climb. Needs more humidity than deliciosa.",                            wt:"Keep slightly more moist than deliciosa. Water when top inch is dry.", ft:"Feed monthly in growing season." },
+  "calathea":             { e:"🌿", n:"Calathea (general)",                        w:6,  f:4,  mf:3,  d:"low",    s:"Dramatic foliage plants that move their leaves day and night. Demanding about water quality and humidity.",          wt:"Use filtered or distilled water. Keep soil consistently moist but never waterlogged.", ft:"Feed monthly spring through summer at half strength." },
+  "calathea medallion":   { e:"🌿", n:"Calathea Medallion",                       w:6,  f:4,  mf:3,  d:"low",    s:"Bold circular leaves with deep purple undersides. Needs high humidity and filtered water.",                          wt:"Water with distilled water when top inch is dry. Mist regularly or use a humidifier.", ft:"Feed monthly in growing season at half the recommended dose." },
+  "calathea lancifolia":  { e:"🌿", n:"Rattlesnake Plant (Calathea lancifolia)",  w:6,  f:4,  mf:3,  d:"low",    s:"Long wavy leaves with distinctive dark spots. Slightly more tolerant than other calatheas.",                        wt:"Use filtered water. Keep soil evenly moist. Higher humidity prevents brown edges.", ft:"Feed monthly spring through summer at half strength." },
+  "calathea zebrina":     { e:"🌿", n:"Calathea Zebrina",                         w:6,  f:4,  mf:3,  d:"low",    s:"Velvety zebra-striped leaves. Among the more demanding calatheas for humidity.",                                     wt:"Distilled water only. Mist regularly or use a humidifier.", ft:"Feed monthly in growing season at half strength." },
+  "maranta":              { e:"🌿", n:"Prayer Plant (Maranta leuconeura)",        w:6,  f:4,  mf:null,d:"low",    s:"Folds its leaves upward at night like hands in prayer. Easier than calathea but still prefers humidity.",            wt:"Keep soil evenly moist in spring and summer, slightly drier in winter.", ft:"Feed every 2 weeks spring through summer with diluted fertilizer." },
+  "stromanthe":           { e:"🌿", n:"Stromanthe Triostar",                      w:6,  f:4,  mf:null,d:"low",    s:"Stunning pink-variegated prayer plant relative. One of the most dramatic houseplants.",                              wt:"Use distilled or rainwater. Keep consistently moist but well-draining.", ft:"Feed monthly in spring and summer at half strength." },
+  "fiddle leaf fig":      { e:"🍃", n:"Fiddle Leaf Fig (Ficus lyrata)",           w:7,  f:3,  mf:3,  d:"low",    s:"Dramatic but finicky statement plant. Hates being moved, drafts, or inconsistent watering.",                         wt:"Water when the top inch is dry — consistency is key. Same amount each time.", ft:"Feed every 2-3 weeks in spring and summer with high-nitrogen fertilizer." },
+  "rubber plant":         { e:"🍃", n:"Rubber Plant (Ficus elastica)",            w:10, f:4,  mf:null,d:"medium", s:"Bold glossy leaves in burgundy or green. Much easier than fiddle leaf fig.",                                        wt:"Water when top 1-2 inches of soil are dry. Wipe leaves monthly.", ft:"Feed monthly spring through summer." },
+  "ficus benjamina":      { e:"🍃", n:"Weeping Fig (Ficus benjamina)",            w:7,  f:4,  mf:null,d:"medium", s:"Elegant tree form that drops leaves dramatically when stressed by drafts or being moved.",                           wt:"Keep soil evenly moist. Avoid letting it dry out completely.", ft:"Feed every 4 weeks spring through summer." },
+  "zz plant":             { e:"🌱", n:"ZZ Plant (Zamioculcas zamiifolia)",        w:14, f:8,  mf:6,  d:"high",   s:"Thrives on neglect and tolerates near-darkness. Stores water in thick rhizomes underground.",                        wt:"Water only when soil is completely dry — every 2-3 weeks in summer, monthly in winter.", ft:"Feed once in spring and once in summer." },
+  "dracaena":             { e:"🌴", n:"Dracaena (general)",                        w:10, f:6,  mf:4,  d:"medium", s:"Architectural plant tolerant of low light and some drought. Sensitive to fluoride in tap water.",                   wt:"Use filtered water if possible. Water when top 2 inches are dry.", ft:"Feed every 6 weeks in spring and summer only." },
+  "dracaena marginata":   { e:"🌴", n:"Dragon Tree (Dracaena marginata)",         w:10, f:6,  mf:4,  d:"medium", s:"Spiky architectural plant that tolerates low light. One of the easiest dracaenas.",                                 wt:"Allow top half of soil to dry between waterings. Very drought tolerant once established.", ft:"Feed monthly spring through summer." },
+  "peace lily":           { e:"🌸", n:"Peace Lily (Spathiphyllum)",               w:6,  f:6,  mf:null,d:"low",    s:"One of the best low-light plants. Droops dramatically when thirsty — a very reliable signal.",                      wt:"Water when leaves begin to droop slightly. Recovers quickly after watering.", ft:"Feed every 6 weeks spring through summer for best blooming." },
+  "spider plant":         { e:"🕷", n:"Spider Plant (Chlorophytum comosum)",      w:6,  f:4,  mf:null,d:"medium", s:"Incredibly adaptable, produces hanging babies readily. Very forgiving of neglect.",                                  wt:"Water when top 1-2 inches are dry. Produces more spiderettes when slightly root-bound.", ft:"Feed every 2 weeks in spring and summer." },
+  "orchid":               { e:"🌸", n:"Phalaenopsis Orchid",                      w:10, f:4,  mf:4,  d:"medium", s:"Blooms for months then rests. Needs a cool night to rebloom. Roots should dry between waterings.",                  wt:"Soak pot in water for 15 minutes then drain completely. Never let roots sit in water.", ft:"Feed weakly weekly with orchid fertilizer when not in bloom." },
+  "succulent":            { e:"🌵", n:"Succulent (general)",                       w:21, f:12, mf:8,  d:"high",   s:"Stores water in its leaves for long dry periods. The most common mistake is overwatering.",                         wt:"Water deeply then let soil dry completely — typically every 2-3 weeks. Always use well-draining soil.", ft:"Feed once or twice per year in spring with diluted succulent fertilizer." },
+  "echeveria":            { e:"🌸", n:"Echeveria",                                 w:14, f:12, mf:8,  d:"high",   s:"Rosette-forming succulent that needs bright light to maintain its compact colorful form.",                           wt:"Water at the base never on the rosette — trapped water causes rot. Let dry completely between waterings.", ft:"Feed once in spring with diluted succulent fertilizer." },
+  "haworthia":            { e:"🌵", n:"Haworthia",                                 w:14, f:12, mf:8,  d:"high",   s:"Tolerates lower light than most succulents. A great windowsill plant that is very forgiving.",                      wt:"Water when soil is completely dry. Tolerates irregular watering better than most plants.", ft:"Feed once or twice per year in spring and summer only." },
+  "aloe vera":            { e:"🌵", n:"Aloe Vera",                                 w:14, f:8,  mf:8,  d:"high",   s:"Medicinal succulent with thick water-storing leaves. Root rot from overwatering is the main risk.",                  wt:"Water deeply every 2-3 weeks in summer, once a month in winter. Ensure excellent drainage.", ft:"Feed once in spring and once in summer with diluted cactus fertilizer." },
+  "cactus":               { e:"🌵", n:"Cactus (general)",                          w:28, f:12, mf:8,  d:"high",   s:"Extreme drought tolerance. Needs maximum light.",                                                                   wt:"Water thoroughly in summer then let dry completely. In winter water only once a month or less.", ft:"Feed once a month in spring and summer with low-nitrogen cactus fertilizer." },
+  "string of pearls":     { e:"🟢", n:"String of Pearls",                         w:14, f:12, mf:8,  d:"high",   s:"Delicate trailing succulent with bead-like leaves. Needs bright light and excellent drainage.",                     wt:"Water when the pearls start to look slightly shriveled. Overwatering causes rot quickly.", ft:"Feed once a month in spring and summer very lightly." },
+  "sedum morganianum":    { e:"🪨", n:"Burro's Tail (Sedum morganianum)",         w:21, f:12, mf:8,  d:"high",   s:"Fragile leaves need bright light and drought conditions.",                                                           wt:"Extremely drought tolerant. Water every 3 weeks in summer, monthly in winter.", ft:"Feed once in spring with diluted succulent fertilizer." },
+  "christmas cactus":     { e:"🌸", n:"Christmas Cactus (Schlumbergera)",         w:10, f:4,  mf:null,d:"medium", s:"Blooms around winter holidays. Needs a cool dark period in fall to trigger flowering.",                              wt:"More moisture than desert cacti. Water when top inch is dry. Reduce in fall to trigger blooming.", ft:"Feed every 2 weeks spring through summer. Stop feeding in fall to encourage blooms." },
+  "fern":                 { e:"🌿", n:"Fern (general)",                            w:3,  f:4,  mf:null,d:"low",    s:"Loves consistent moisture and humidity. Will go brown and crispy quickly if allowed to dry out.",                   wt:"Keep soil consistently moist but not waterlogged. Mist regularly.", ft:"Feed monthly spring through summer with half-strength balanced fertilizer." },
+  "boston fern":          { e:"🌿", n:"Boston Fern (Nephrolepis exaltata)",       w:3,  f:4,  mf:null,d:"low",    s:"Lush arching fronds that need high humidity and consistent moisture to thrive.",                                    wt:"Never let soil dry out. Water 2-3 times per week in summer, less in winter. Mist daily if possible.", ft:"Feed every 2 weeks in spring and summer." },
+  "maidenhair fern":      { e:"🌿", n:"Maidenhair Fern (Adiantum)",               w:2,  f:4,  mf:null,d:"low",    s:"One of the most demanding ferns — needs perfect moisture balance and high humidity constantly.",                    wt:"Water every 2-3 days. Maidenhair will collapse within hours of drying out.", ft:"Feed monthly at half strength spring through summer." },
+  "birds nest fern":      { e:"🌿", n:"Bird's Nest Fern (Asplenium nidus)",       w:7,  f:6,  mf:null,d:"low",    s:"More tolerant than other ferns. Avoid getting water in the crown — causes rot.",                                    wt:"Water around the edges of the pot not into the center rosette.", ft:"Feed every 4-6 weeks in growing season." },
+  "cast iron plant":      { e:"🌿", n:"Cast Iron Plant (Aspidistra elatior)",     w:14, f:8,  mf:8,  d:"high",   s:"Virtually indestructible. Tolerates deep shade, drought, and neglect.",                                             wt:"Water when soil is dry. One of the most drought-tolerant non-succulent houseplants.", ft:"Feed once in spring and once in summer." },
+  "bird of paradise":     { e:"🌺", n:"Bird of Paradise (Strelitzia)",            w:8,  f:3,  mf:null,d:"medium", s:"Dramatic large-leafed tropical that needs lots of light to bloom indoors. Very hungry feeder.",                     wt:"Water when top 2 inches are dry. Tolerates some drought but grows faster with consistent moisture.", ft:"Feed every 2 weeks spring through summer — one of the heaviest feeders." },
+  "anthurium":            { e:"🌺", n:"Anthurium",                                 w:7,  f:4,  mf:null,d:"medium", s:"Waxy heart-shaped blooms that last for months. Needs bright indirect light to rebloom.",                           wt:"Water when top 1-2 inches are dry. High humidity improves leaf texture and blooming.", ft:"Feed every 6-8 weeks with a phosphorus-rich fertilizer to encourage blooming." },
+  "alocasia":             { e:"🌿", n:"Alocasia (Elephant Ear)",                  w:6,  f:3,  mf:null,d:"low",    s:"Dramatic arrow-shaped leaves that need warmth, humidity and bright indirect light.",                                wt:"Keep soil moist but well-draining. Goes dormant in winter — reduce watering significantly.", ft:"Feed every 2-3 weeks in growing season." },
+  "bromeliad":            { e:"🌺", n:"Bromeliad",                                 w:10, f:8,  mf:null,d:"medium", s:"Water into the central cup not the soil. Blooms once then produces pups.",                                         wt:"Keep the central cup filled with water. Change it weekly. Water soil monthly.", ft:"Add diluted fertilizer to the cup once a month in growing season." },
+  "areca palm":           { e:"🌴", n:"Areca Palm (Dypsis lutescens)",            w:7,  f:4,  mf:null,d:"medium", s:"Elegant multi-stemmed palm and excellent air purifier. Needs bright indirect light.",                               wt:"Keep soil lightly moist in summer. Allow to dry slightly between waterings in winter.", ft:"Feed every 4 weeks spring through summer." },
+  "parlor palm":          { e:"🌴", n:"Parlor Palm (Chamaedorea elegans)",        w:7,  f:6,  mf:null,d:"medium", s:"One of the best low-light palms. Slow growing but very tolerant of indoor conditions.",                            wt:"Water when top inch is dry. Avoid overwatering.", ft:"Feed every 6 weeks in growing season." },
+  "kentia palm":          { e:"🌴", n:"Kentia Palm (Howea forsteriana)",          w:10, f:6,  mf:6,  d:"medium", s:"Elegant slow-growing palm tolerant of low light and some neglect.",                                                wt:"Allow top 2 inches to dry between waterings. Very sensitive to overwatering.", ft:"Feed sparingly — every 6-8 weeks in growing season only." },
+  "hoya":                 { e:"🌿", n:"Hoya (Wax Plant)",                          w:10, f:4,  mf:null,d:"medium", s:"Slow-growing vining plant that blooms with clusters of waxy flowers. Thrives when slightly root-bound.",           wt:"Allow soil to dry almost completely between waterings. Blooms more when slightly stressed.", ft:"Feed every 4 weeks in growing season with a high-phosphorus fertilizer." },
+  "string of hearts":     { e:"💚", n:"String of Hearts (Ceropegia woodii)",      w:14, f:8,  mf:8,  d:"high",   s:"Delicate trailing plant with heart-shaped leaves. Very drought tolerant.",                                          wt:"Allow to dry completely between waterings. Overwatering is the main risk.", ft:"Feed once a month in spring and summer with diluted balanced fertilizer." },
+  "pilea":                { e:"🌿", n:"Pilea peperomioides (Chinese Money Plant)",w:7,  f:4,  mf:null,d:"medium", s:"Cheerful round-leafed plant that produces offsets freely. Rotate regularly for even growth.",                      wt:"Water when top inch is dry. Leaves will cup slightly when thirsty.", ft:"Feed monthly spring through summer." },
+  "peperomia":            { e:"🌿", n:"Peperomia (general)",                       w:10, f:6,  mf:null,d:"medium", s:"Compact plants that store water in thick leaves. Very forgiving and easy to care for.",                            wt:"Allow soil to dry halfway before watering. Far more forgiving of underwatering.", ft:"Feed every 6 weeks in spring and summer only." },
+  "peperomia watermelon": { e:"🍉", n:"Watermelon Peperomia",                     w:10, f:6,  mf:null,d:"medium", s:"Watermelon-patterned leaves. Thrives in bright indirect light.",                                                   wt:"Allow top half of soil to dry between waterings. Sensitive to overwatering.", ft:"Feed monthly in growing season at half strength." },
+  "chinese evergreen":    { e:"🌿", n:"Chinese Evergreen (Aglaonema)",            w:10, f:6,  mf:null,d:"medium", s:"Extremely tolerant of low light and irregular watering.",                                                           wt:"Water when top 1-2 inches are dry. Tolerates drying out occasionally.", ft:"Feed every 6-8 weeks in spring and summer." },
+  "dieffenbachia":        { e:"🌿", n:"Dieffenbachia (Dumb Cane)",                w:7,  f:4,  mf:null,d:"medium", s:"Bold tropical foliage that tolerates low light. Sap is toxic — wear gloves when handling.",                        wt:"Water when top inch is dry. Yellowing lower leaves usually indicate overwatering.", ft:"Feed every 4 weeks spring through summer." },
+  "nerve plant":          { e:"🌿", n:"Nerve Plant (Fittonia)",                   w:3,  f:4,  mf:null,d:"low",    s:"Tiny plant with dramatic veining that wilts theatrically when thirsty but recovers quickly.",                      wt:"Water when it starts to wilt slightly. Needs high humidity. Terrariums are ideal.", ft:"Feed monthly at quarter strength in spring and summer." },
+  "croton":               { e:"🍂", n:"Croton (Codiaeum variegatum)",             w:7,  f:3,  mf:null,d:"low",    s:"Spectacular multicolored foliage that needs maximum light to stay vivid. Drops leaves when stressed.",              wt:"Keep soil consistently moist. Drooping or leaf drop indicates either over or under-watering.", ft:"Feed every 3 weeks in growing season." },
+  "schefflera":           { e:"🌿", n:"Schefflera (Umbrella Plant)",              w:7,  f:4,  mf:null,d:"medium", s:"Dramatic umbrella-shaped leaf clusters. Drops leaves if moved or in drafts.",                                       wt:"Water when top inch is dry. Mist occasionally to maintain humidity.", ft:"Feed monthly spring through summer." },
+  "yucca":                { e:"🌵", n:"Yucca",                                     w:14, f:8,  mf:8,  d:"high",   s:"Architectural desert plant that needs maximum light and minimal water.",                                             wt:"Water deeply then allow to dry completely. In winter water once a month or less.", ft:"Feed once in spring and once in summer only." },
+  "tradescantia":         { e:"💜", n:"Tradescantia (Spiderwort)",                w:5,  f:4,  mf:null,d:"medium", s:"Fast-growing trailing plant with purple or green foliage. Very easy and forgiving.",                                wt:"Water when top inch is dry. Tolerates some drought but grows faster with regular watering.", ft:"Feed monthly spring through summer." },
+  "wandering jew":        { e:"💜", n:"Wandering Dude (Tradescantia fluminensis)",w:5,  f:4,  mf:null,d:"medium", s:"Fast-growing forgiving trailer. Very easy.",                                                                        wt:"Water when top inch is dry.", ft:"Feed monthly spring through summer." },
+  "african violet":       { e:"💜", n:"African Violet (Saintpaulia)",             w:7,  f:3,  mf:null,d:"medium", s:"Compact bloomer that flowers nearly year-round in bright indirect light.",                                          wt:"Water from below to avoid leaf spotting. Use room-temperature water only.", ft:"Feed every 2-3 weeks with African violet fertilizer for continuous blooming." },
+  "air plant":            { e:"🌬", n:"Air Plant (Tillandsia)",                   w:7,  f:4,  mf:null,d:"medium", s:"Grows without soil — absorbs water through its leaves. Needs good air circulation after watering.",               wt:"Soak in water for 20-30 minutes weekly. Shake off excess and allow to dry completely within 4 hours.", ft:"Add diluted bromeliad fertilizer to soaking water monthly." },
+  "ivy":                  { e:"🌿", n:"English Ivy (Hedera helix)",               w:7,  f:4,  mf:null,d:"medium", s:"Classic trailing plant that prefers cooler temperatures. Watch for spider mites.",                                 wt:"Water when top inch is dry. Prefers slightly cooler and more humid conditions.", ft:"Feed monthly in spring and summer." },
+  "begonia":              { e:"🌸", n:"Begonia (general)",                         w:7,  f:3,  mf:null,d:"medium", s:"Prolific bloomers that need bright indirect light. Sensitive to overwatering.",                                    wt:"Water when top inch is dry. Allow good airflow to prevent powdery mildew.", ft:"Feed every 2-3 weeks in growing season with a bloom-boosting fertilizer." },
+  "polka dot plant":      { e:"🌸", n:"Polka Dot Plant (Hypoestes)",              w:5,  f:4,  mf:null,d:"low",    s:"Bright spotted foliage in pink, red or white. Tends to get leggy — pinch regularly.",                              wt:"Keep consistently moist. Wilts quickly when dry but recovers fast.", ft:"Feed every 2 weeks in spring and summer." },
+  "jasmine":              { e:"🌸", n:"Jasmine",                                   w:7,  f:3,  mf:null,d:"medium", s:"Fragrant flowering vine that needs a cool period to bloom. Needs support to climb.",                               wt:"Water freely when growing, reduce in winter rest period.", ft:"Feed every 2 weeks spring through summer with bloom fertilizer." },
+  "lavender":             { e:"💜", n:"Lavender",                                  w:14, f:8,  mf:8,  d:"high",   s:"Mediterranean herb that needs maximum light and excellent drainage. Hates humidity.",                              wt:"Allow to dry completely between waterings. Root rot is the main risk.", ft:"Feed once in spring only with a low-nitrogen fertilizer." },
+  "oxalis":               { e:"🍀", n:"Oxalis (Shamrock Plant)",                  w:7,  f:4,  mf:null,d:"medium", s:"Folds its clover-like leaves at night. Goes dormant in summer — this is normal.",                                  wt:"Water when top inch is dry. Reduce watering significantly during summer dormancy.", ft:"Feed monthly in spring and fall. Skip summer and winter." },
+  "dracaena sanderiana":  { e:"🎍", n:"Lucky Bamboo (Dracaena sanderiana)",       w:7,  f:8,  mf:null,d:"medium", s:"Often grown in water. Sensitive to chlorinated water.",                                                             wt:"If in water change every 2 weeks. If in soil water when top inch is dry.", ft:"Feed very lightly every 6-8 weeks in growing season." },
+  "mint":                 { e:"🌿", n:"Mint",                                      w:3,  f:4,  mf:null,d:"low",    s:"Vigorous grower that spreads aggressively. Keep moist and in bright light.",                                       wt:"Keep consistently moist. Never allow to dry out.", ft:"Feed every 4 weeks in growing season." },
+  "basil":                { e:"🌿", n:"Basil",                                     w:3,  f:4,  mf:null,d:"low",    s:"Needs maximum sun and warmth. Pinch flowers to keep producing leaves.",                                             wt:"Water daily in warm weather. Wilts dramatically when dry but recovers quickly.", ft:"Feed every 2-4 weeks with balanced liquid fertilizer." },
+  "rosemary":             { e:"🌿", n:"Rosemary",                                  w:10, f:8,  mf:null,d:"high",   s:"Aromatic herb that needs maximum light. Struggles indoors without very bright conditions.",                         wt:"Allow to dry between waterings. Ensure good airflow.", ft:"Feed monthly spring through summer." },
+  "adenium":              { e:"🌸", n:"Desert Rose (Adenium obesum)",             w:14, f:6,  mf:null,d:"high",   s:"Exotic succulent tree with stunning flowers. Needs maximum light and minimal winter water.",                        wt:"Water when soil is completely dry. In winter water once a month only.", ft:"Feed every 2 weeks in spring and summer with bloom-boosting fertilizer." },
+  "colocasia":            { e:"🌿", n:"Colocasia (Taro)",                          w:4,  f:3,  mf:null,d:"low",    s:"Large-leafed tropical that loves moisture and warmth.",                                                             wt:"Keep soil consistently moist. Can tolerate sitting in shallow water.", ft:"Feed every 2 weeks in growing season." },
+  "episcia":              { e:"🌺", n:"Episcia (Flame Violet)",                   w:4,  f:4,  mf:null,d:"low",    s:"Trailing plant with colorful leaves and small flowers. Needs warmth and high humidity.",                           wt:"Keep consistently moist. Very sensitive to cold water — always use room-temperature water.", ft:"Feed every 2 weeks spring through summer." },
+  "streptocarpus":        { e:"🌸", n:"Streptocarpus (Cape Primrose)",            w:7,  f:3,  mf:null,d:"medium", s:"Prolific bloomer with strap-like leaves. Prefers cool conditions.",                                                 wt:"Allow to just dry between waterings. Overwatering causes root rot.", ft:"Feed every 2 weeks in spring and summer with high-potassium fertilizer." },
 };
 
-// ── Search aliases ────────────────────────────────────
 const ALIASES = {
-  "snake":"sansevieria", "sansevieria":"sansevieria", "dracaena trifasciata":"sansevieria",
-  "mother in laws tongue":"sansevieria", "zz":"zz plant", "zamioculcas":"zz plant",
-  "devil's ivy":"pothos", "devils ivy":"pothos", "golden pothos":"pothos",
-  "pinstripe calathea":"calathea ornata", "striped calathea":"calathea ornata",
-  "donkey tail":"sedum burrito", "sedum burrito":"sedum burrito", "burrito":"sedum burrito",
-  "silver inch":"tradescantia zebrina", "inch plant":"tradescantia zebrina",
-  "dracaena fragrans":"dracaena fragrans tornado", "tornado plant":"dracaena fragrans tornado",
-  "corn plant":"dracaena fragrans tornado", "corn dracaena":"dracaena fragrans tornado",
-  "monstera deliciosa":"monstera", "swiss cheese":"monstera adansonii",
-  "fiddle leaf":"fiddle leaf fig", "ficus lyrata":"fiddle leaf fig",
-  "rubber tree":"rubber plant", "ficus elastica":"rubber plant",
-  "prayer plant":"maranta", "peacock plant":"calathea medallion",
-  "bird of paradise":"bird of paradise", "strelitzia":"bird of paradise",
-  "lucky bamboo":"dracaena sanderiana", "wax plant":"hoya",
-  "chinese money plant":"pilea", "ufo plant":"pilea",
-  "watermelon peperomia":"peperomia watermelon", "umbrella":"schefflera",
-  "desert rose":"adenium", "wandering dude":"wandering jew",
-  "cast iron":"cast iron plant", "aspidistra":"cast iron plant",
-  "african violet":"african violet", "saintpaulia":"african violet",
+  "snake":"sansevieria","mother in laws tongue":"sansevieria","sansevieria trifasciata":"sansevieria",
+  "dracaena trifasciata":"sansevieria","zz":"zz plant","zamioculcas":"zz plant",
+  "golden pothos":"pothos","devils ivy":"pothos","devil's ivy":"pothos","epipremnum":"pothos",
+  "striped calathea":"calathea ornata","pinstripe calathea":"calathea ornata","calathea ornata":"calathea ornata",
+  "donkey tail":"sedum burrito","burrito":"sedum burrito","sedum burrito":"sedum burrito",
+  "silver inch":"tradescantia zebrina","inch plant":"tradescantia zebrina","tradescantia zebrina":"tradescantia zebrina",
+  "tornado plant":"dracaena fragrans tornado","dracaena fragrans":"dracaena fragrans tornado","corn plant":"dracaena fragrans tornado",
+  "swiss cheese":"monstera adansonii","monstera deliciosa":"monstera",
+  "fiddle leaf":"fiddle leaf fig","ficus lyrata":"fiddle leaf fig",
+  "rubber tree":"rubber plant","ficus elastica":"rubber plant",
+  "prayer plant":"maranta","peacock plant":"calathea medallion",
+  "bird of paradise":"bird of paradise","strelitzia":"bird of paradise",
+  "lucky bamboo":"dracaena sanderiana","wax plant":"hoya",
+  "chinese money plant":"pilea","ufo plant":"pilea",
+  "watermelon peperomia":"peperomia watermelon","umbrella plant":"schefflera",
+  "desert rose":"adenium","cast iron":"cast iron plant","aspidistra":"cast iron plant",
+  "saintpaulia":"african violet","wandering dude":"wandering jew","spiderwort":"tradescantia",
+  "elephant ear":"alocasia","taro":"colocasia","flame violet":"episcia",
+  "birds nest fern":"birds nest fern","bird's nest fern":"birds nest fern",
+  "burros tail":"sedum morganianum","burro's tail":"sedum morganianum",
 };
 
-// ── Multipliers ────────────────────────────────────────
-const SEASON_W  = { spring:1.0, summer:1.15, fall:0.9, winter:0.75 };
-const SEASON_F  = { spring:1.0, summer:0.85, fall:1.2, winter:null };
-// Light: medium = neutral baseline (plant base intervals assume medium indirect light)
-const LIGHT_M   = { low:1.15, medium:1.0, bright:0.85, direct:0.75 };
-// Distance: 3-6ft = neutral
-const DIST_M    = { "very-close":0.85, close:0.9, medium:1.0, far:1.15 };
-// Pot: ceramic = neutral baseline; terracotta dries faster so LOWER interval
-const POT_M     = { terracotta:0.8, plastic:1.15, ceramic:1.0, fabric:0.75 };
-// Soil: standard = neutral
-const SOIL_M    = { standard:1.0, "well-draining":0.8, "moisture-retaining":1.2, succulent:0.7 };
-// Age: established = neutral
-const AGE_M     = { young:1.1, established:1.0, large:0.9 };
-// Drain: has holes = neutral
-const DRAIN_M   = { yes:1.0, no:1.35, leca:1.05, tray:1.1 };
-// Pot size: snug = neutral
-const POTSIZE_M = { snug:1.0, large:1.2, small:0.9 };
-// Vent: no vent = neutral; vent dries faster = lower interval
-const VENT_M    = { no:1.0, yes:0.82 };
-// Room humidity: average = neutral
-const ROOMHUM_M = { dry:0.88, average:1.0, humid:1.12 };
-const DROUGHT_M = { low:0.85, medium:1.0, high:1.2 };
-// fertilizer type overrides base feed weeks entirely
-const FERTTYPE_WKS = { liquid:2, concentrated:4, slowrelease:16, none:null };
-const LIGHTDOTS = { low:1, medium:2, bright:3, direct:4 };
-const DIRMAP    = { north:"N window", east:"E window", south:"S window", west:"W window" };
+// ════════════════════════════════════════════════════
+// MULTIPLIERS  (default conditions = 1.0)
+// ════════════════════════════════════════════════════
+const SW  = { spring:1.0, summer:1.15, fall:0.9, winter:0.75 };
+const SF  = { spring:1.0, summer:0.85, fall:1.2, winter:null };
+const LM  = { low:1.15, medium:1.0, bright:0.85, direct:0.75 };
+const DM  = { "very-close":0.85, close:0.9, medium:1.0, far:1.15 };
+const PM  = { terracotta:0.8, plastic:1.15, ceramic:1.0, fabric:0.75 };
+const SOM = { standard:1.0, "well-draining":0.8, "moisture-retaining":1.2, succulent:0.7 };
+const AM  = { young:1.1, established:1.0, large:0.9 };
+const DRM = { yes:1.0, no:1.35, leca:1.05, tray:1.1 };
+const PSM = { snug:1.0, large:1.2, small:0.9 };
+const VM  = { no:1.0, yes:0.82 };
+const RHM = { dry:0.88, average:1.0, humid:1.12 };
+const DRT = { low:0.85, medium:1.0, high:1.2 };
+const FTW = { liquid:2, concentrated:4, slowrelease:16, none:null };
 
-let plants = JSON.parse(localStorage.getItem('verdant_v3') || '[]');
-let weather = JSON.parse(localStorage.getItem('verdant_weather') || 'null');
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let plants = JSON.parse(localStorage.getItem("verdant_v4") || "[]");
+let wdata  = JSON.parse(localStorage.getItem("verdant_wx") || "null");
 let season = getSeason();
-let humidity = weather ? weather.humidity : 50;
-let selectedProfile = null;
+let outsideHumidity = wdata ? wdata.humidity : 50;
+let selProfile = null;
+let editIdx = null;
+let lbPlant = null, lbPhoto = null;
+let photoTarget = null;
 
+// ════════════════════════════════════════════════════
+// SEASON / SCHEDULE
+// ════════════════════════════════════════════════════
 function getSeason() {
   const m = new Date().getMonth();
-  if (m>=2&&m<=4) return 'spring';
-  if (m>=5&&m<=7) return 'summer';
-  if (m>=8&&m<=10) return 'fall';
-  return 'winter';
+  if (m >= 2 && m <= 4) return "spring";
+  if (m >= 5 && m <= 7) return "summer";
+  if (m >= 8 && m <= 10) return "fall";
+  return "winter";
 }
 
-// ── Species search ────────────────────────────────────
-function searchSpecies() {
-  const q = document.getElementById('f-species').value.trim().toLowerCase();
-  const box = document.getElementById('species-box');
-  const info = document.getElementById('species-info');
-  const sugg = document.getElementById('suggest-list');
-  selectedProfile = null;
-
-  if (q.length < 2) { box.classList.remove('visible'); return; }
-
-  // Check alias first
-  const aliasKey = ALIASES[q];
-  if (aliasKey && DB[aliasKey]) {
-    showProfile(DB[aliasKey]);
-    sugg.innerHTML = '';
-    return;
-  }
-
-  // Exact match
-  if (DB[q]) { showProfile(DB[q]); sugg.innerHTML=''; return; }
-
-  // Partial match
-  const matches = Object.keys(DB).filter(k =>
-    k.includes(q) || DB[k].name.toLowerCase().includes(q)
-  );
-
-  // Check aliases for partial
-  const aliasMatches = Object.entries(ALIASES)
-    .filter(([alias]) => alias.includes(q))
-    .map(([,key]) => key)
-    .filter(k => DB[k]);
-
-  const allMatches = [...new Set([...matches, ...aliasMatches])];
-
-  if (allMatches.length === 1) {
-    showProfile(DB[allMatches[0]]); sugg.innerHTML=''; return;
-  }
-
-  if (allMatches.length > 1) {
-    box.classList.add('visible');
-    info.innerHTML = `<span style="color:var(--text-light)">Multiple matches — tap to select:</span>`;
-    sugg.innerHTML = allMatches.slice(0,8).map(k =>
-      `<span class="suggest-chip" onclick="selectSpecies('${k}')">${DB[k].emoji} ${DB[k].name}</span>`
-    ).join('');
-    selectedProfile = null;
-    return;
-  }
-
-  // No match — use defaults
-  box.classList.add('visible');
-  info.innerHTML = `<span style="color:var(--amber)">Plant not in database — will use general defaults. You can still add it.</span>`;
-  sugg.innerHTML = '';
-  selectedProfile = { emoji:'🪴', name: document.getElementById('f-species').value, baseWater:10, feedWks:5, drought:'medium', summary:'Using general care defaults.', waterTip:'Water when top 1-2 inches of soil are dry.', feedTip:'Feed monthly in spring and summer.' };
-}
-
-function selectSpecies(key) {
-  const p = DB[key];
-  document.getElementById('f-species').value = p.name;
-  showProfile(p);
-  document.getElementById('suggest-list').innerHTML = '';
-}
-
-function showProfile(p) {
-  selectedProfile = p;
-  const box = document.getElementById('species-box');
-  const info = document.getElementById('species-info');
-  box.classList.add('visible');
-  info.innerHTML = `<strong>${p.emoji} ${p.name}</strong><br>${p.summary}<br><br>
-    <strong>Watering:</strong> ${p.waterTip}<br>
-    <strong>Feeding:</strong> ${p.feedTip}`;
-}
-
-// ── Calculations ──────────────────────────────────────
 function calcWater(p) {
-  const prof = p.profile || {};
-  const base = prof.baseWater || 10;
-  const drought = prof.drought || 'medium';
-  let d = base;
-  d *= SEASON_W[season]||1;
-  d *= DROUGHT_M[drought]||1;
-  d *= LIGHT_M[p.light]||1;
-  d *= DIST_M[p.dist]||1;
-  d *= POT_M[p.pot]||1;
-  d *= SOIL_M[p.soil]||1;
-  d *= AGE_M[p.age]||1;
-  d *= DRAIN_M[p.drain]||1;
-  d *= POTSIZE_M[p.potsize]||1;
-  d *= VENT_M[p.vent]||1;
-  d *= ROOMHUM_M[p.roomhum]||1;
-  d *= 1 + (50 - humidity) / 200;
-  // personal adjustment: -3 (dries faster) to +3 (dries slower), each step = 15%
-  const adj = p.adjustment || 0;
-  d *= 1 + (adj * 0.20);
+  const pr = p.profile || {};
+  let d = (pr.w || 10);
+  d *= SW[season] || 1;
+  d *= DRT[pr.d || "medium"] || 1;
+  d *= LM[p.light] || 1;
+  d *= DM[p.dist] || 1;
+  d *= PM[p.pot] || 1;
+  d *= SOM[p.soil] || 1;
+  d *= AM[p.age] || 1;
+  d *= DRM[p.drain] || 1;
+  d *= PSM[p.potsize] || 1;
+  d *= VM[p.vent] || 1;
+  d *= RHM[p.roomhum] || 1;
+  d *= 1 + (50 - outsideHumidity) / 200;
+  d *= 1 + ((p.adj || 0) * 0.20);
   return Math.max(1, Math.round(d));
 }
 
 function calcFeed(p) {
-  const mult = SEASON_F[season];
-  if (!mult) return null; // winter — no feeding
-  const fertWks = FERTTYPE_WKS[p.ferttype];
-  if (fertWks === null || fertWks === undefined) return null; // not fertilizing
-  let weeks = Math.round(fertWks * mult);
-  // apply per-species cap for slow/moderate growers
-  const prof = p.profile || {};
-  if (prof.maxFeedWks) weeks = Math.max(weeks, prof.maxFeedWks);
+  const mult = SF[season];
+  if (!mult) return null;
+  const fw = FTW[p.ferttype];
+  if (fw === null || fw === undefined) return null;
+  const pr = p.profile || {};
+  let weeks = Math.round(fw * mult);
+  if (pr.mf) weeks = Math.max(weeks, pr.mf);
   return Math.max(1, weeks);
 }
 
-function daysSince(ts) { return ts ? Math.round((Date.now()-ts)/86400000) : null; }
+function daysSince(ts) { return ts ? Math.round((Date.now() - ts) / 86400000) : null; }
 
-function getStatus(lastTs, interval) {
+function status(lastTs, interval) {
   const ds = daysSince(lastTs);
-  if (ds===null) return {text:'Not logged', cls:'s-new'};
+  if (ds === null) return { t:"Not logged", c:"s-new" };
   const rem = interval - ds;
-  if (rem<=0) return {text:`Overdue ${Math.abs(rem)}d`, cls:'s-overdue'};
-  if (rem<=2) return {text:`Due in ${rem}d`, cls:'s-soon'};
-  return {text:`In ${rem} days`, cls:'s-ok'};
+  if (rem <= 0) return { t:"Overdue " + Math.abs(rem) + "d", c:"s-over" };
+  if (rem <= 2) return { t:"Due in " + rem + "d", c:"s-soon" };
+  return { t:"In " + rem + " days", c:"s-ok" };
+}
+
+function nextDate(lastTs, interval) {
+  if (!lastTs) return "Not logged";
+  const next = new Date(lastTs + interval * 86400000);
+  const diff = Math.round((next - Date.now()) / 86400000);
+  if (diff <= 0) return "Overdue";
+  if (diff === 1) return "Tomorrow";
+  return next.toLocaleDateString("en-US", { month:"short", day:"numeric" });
 }
 
 function fmtLast(ts, label) {
-  if (!ts) return `${label}: not logged`;
+  if (!ts) return label + ": not logged";
   const d = daysSince(ts);
-  return `${label}: ${d===0?'today':d+'d ago'}`;
+  return label + ": " + (d === 0 ? "today" : d + "d ago");
 }
 
-// ── Render ────────────────────────────────────────────
+// ════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════
 function renderPlants() {
-  const el = document.getElementById('plants-list');
+  const el = document.getElementById("plants-list");
   if (!plants.length) {
-    el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">🌱</div>
-      <div class="empty-title">No plants yet</div>
-      <div class="empty-sub">Add your first plant to get a personalized care schedule.</div>
-      <button class="empty-btn" onclick="showTab('add')">Add a plant</button>
-    </div>`;
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🌱</div><div class="empty-title">No plants yet</div><div class="empty-sub">Add your first plant to get a personalized care schedule.</div><button class="empty-btn" onclick="showTab(\'add\')">Add a plant</button></div>';
     return;
   }
-  const allCollapsed = plants.length > 0 && plants.every(p => p.collapsed);
-  const collapseAllLabel = allCollapsed ? 'Expand all' : 'Collapse all';
-  const headerHtml = plants.length ? `<button class="collapse-all-btn" onclick="toggleCollapseAll()">${collapseAllLabel}</button>` : '';
-  el.innerHTML = headerHtml + '<div class="plants-inner">' + plants.map((p,i) => {
-    const prof = p.profile || {};
-    const emoji = prof.emoji || '🪴';
-    const waterDays = calcWater(p);
-    const feedWks = calcFeed(p);
-    const wStatus = getStatus(p.lastWater, waterDays);
-    const fStatus = feedWks ? getStatus(p.lastFeed, feedWks*7) : {text:'Dormant — skip', cls:'s-dormant'};
-    const dots = LIGHTDOTS[p.light]||2;
-    const pips = [1,2,3,4].map(n=>`<div class="light-dot ${n<=dots?'on':''}"></div>`).join('');
-    const drainWarn = p.drain==='no' ? `<span class="tag tag-warn">No drainage — water carefully</span>` : p.drain==='leca' ? `<span class="tag">Leca drainage layer</span>` : '';
-    const ventWarn = p.vent==='yes' ? `<span class="tag tag-warn">Near vent</span>` : '';
-    const photoThumbs = (p.photos||[]).map((src,j)=>`<img class="photo-thumb" src="${src}" onclick="openPhoto(${i},${j})" style="cursor:pointer">`).join('');
-    const isCollapsed = p.collapsed ? 'card-collapsed' : '';
-    const collapseIcon = p.collapsed ? '▼' : '▲';
-    const nextWater = getNextDate(p.lastWater, waterDays);
-    const nextFeed = feedWks ? getNextDate(p.lastFeed, feedWks*7) : null;
-    return `<div class="plant-card ${isCollapsed}" id="card-${i}" style="animation-delay:${i*0.05}s">
-      <div class="plant-card-top">
-        <div class="plant-emoji" style="${p.photos&&p.photos.length?'padding:0;overflow:hidden;cursor:pointer':''}" ${p.photos&&p.photos.length?`onclick="openPhoto(${i},0)"`:''}>${p.photos&&p.photos.length?`<img src="${p.photos[0]}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`:`${emoji}`}</div>
-        <div class="plant-info">
-          <div class="plant-name">${p.name}</div>
-          <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil · ${({liquid:'liquid fert',concentrated:'concentrated fert',slowrelease:'slow-release fert',none:'no fert'})[p.ferttype]||'liquid fert'}</div>
-        </div>
-        <button class="collapse-btn" onclick="toggleCollapse(${i})" title="Collapse/expand">${collapseIcon}</button>
-        <button class="edit-btn" onclick="editPlant(${i})" title="Edit">✎</button>
-        <button class="plant-delete" onclick="deletePlant(${i})">×</button>
-      </div>
-      <div class="card-summary">
-        <div class="summary-item">💧 <span>${wStatus.cls==='s-new'?'Not logged':nextWater}</span><span class="status-badge ${wStatus.cls}">${wStatus.text}</span></div>
-        <div class="summary-divider"></div>
-        <div class="summary-item">🌿 <span>${!feedWks?'No feeding':fStatus.cls==='s-new'?'Not logged':nextFeed||'—'}</span>${feedWks?`<span class="status-badge ${fStatus.cls}">${fStatus.text}</span>`:''}</div>
-      </div>
-      ${prof.summary ? `<div class="care-profile"><div class="care-profile-label">Care profile</div>${prof.summary}<br><small style="color:var(--text-light)">${prof.waterTip||''}</small></div>` : ''}
-      <div class="light-row">${pips}<span class="light-text">${p.light} light</span><span class="tag">${DIRMAP[p.dir]||p.dir}</span>${drainWarn}${ventWarn}</div>
-      <div class="care-section">
-        <div class="care-row">
-          <div class="care-left">
-            <div class="care-type">Watering</div>
-            <div class="care-schedule">Every ~${waterDays} days</div>
-            <div class="care-last">${fmtLast(p.lastWater,'Last watered')}</div>
-          </div>
-          <span class="status-badge ${wStatus.cls}">${wStatus.text}</span>
-          <button class="log-btn" onclick="logWater(${i})">Watered ✓</button>
-        </div>
-        <div class="care-row">
-          <div class="care-left">
-            <div class="care-type">Fertilizing</div>
-            <div class="care-schedule">${feedWks?'Every ~'+feedWks+' weeks':'Dormant — skip feeding'}</div>
-            ${(()=>{const prof=p.profile||{};const fertWks=FERTTYPE_WKS[p.ferttype];const raw=fertWks?Math.round(fertWks*(SEASON_F[season]||1)):null;return(prof.maxFeedWks&&raw&&raw<prof.maxFeedWks&&feedWks)?`<div style="font-size:11px;color:var(--amber);margin-top:2px">Capped for slow grower</div>`:'';})()}
-            <div class="care-last">${fmtLast(p.lastFeed,'Last fed')}</div>
-          </div>
-          <span class="status-badge ${fStatus.cls}">${fStatus.text}</span>
-          ${feedWks?`<button class="log-btn" onclick="logFeed(${i})">Fed ✓</button>`:'<span></span>'}
-        </div>
-      </div>
-      <div class="photo-row">${photoThumbs}<label class="photo-add" for="global-file-input" onclick="setPhotoTarget(${i})">+</label><span style="font-size:12px;color:var(--text-light)">${p.photos&&p.photos.length?p.photos.length+' photo'+(p.photos.length>1?'s':''):'Add photo'}</span></div>
-      <div class="adjust-row">
-        <div class="adjust-label">
-          <span>Schedule adjustment</span>
-          <span id="adj-label-${i}" class="adj-val">${getAdjLabel(p.adjustment||0)}</span>
-        </div>
-        <div class="adjust-track">
-          <span class="adj-end">Dries faster</span>
-          <input type="range" min="-3" max="3" step="1" value="${p.adjustment||0}"
-            oninput="updateAdj(${i}, this.value)"
-            onchange="saveAdj(${i}, this.value)"
-            class="adj-slider">
-          <span class="adj-end">Dries slower</span>
-        </div>
-      </div>
-      <div class="notes-row"><textarea class="notes-input" rows="2" placeholder="Notes..." onblur="saveNote(${i},this.value)">${p.notes||''}</textarea></div>
-    </div>`;
-  }).join('') + '</div>';
-}
-
-function logWater(i){plants[i].lastWater=Date.now();save();renderPlants();}
-function logFeed(i){plants[i].lastFeed=Date.now();save();renderPlants();}
-function deletePlant(i){if(confirm(`Remove "${plants[i].name}"?`)){plants.splice(i,1);save();renderPlants();}}
-function saveNote(i,v){plants[i].notes=v;save();}
-function clearAll(){if(confirm('Remove all plants?')){plants=[];save();renderPlants();}}
-
-let _editIdx = null;
-
-function editPlant(i) {
-  const p = plants[i];
-  _editIdx = i;
-  document.getElementById('form-title').textContent = 'Edit plant';
-  document.getElementById('submit-btn').textContent = 'Save changes';
-  document.getElementById('f-name').value = p.name || '';
-  document.getElementById('f-species').value = p.species || '';
-  document.getElementById('f-pot').value = p.pot || 'ceramic';
-  document.getElementById('f-drain').value = p.drain || 'yes';
-  document.getElementById('f-soil').value = p.soil || 'standard';
-  document.getElementById('f-potsize').value = p.potsize || 'snug';
-  document.getElementById('f-ferttype').value = p.ferttype || 'liquid';
-  document.getElementById('f-dir').value = p.dir || 'south';
-  document.getElementById('f-light').value = p.light || 'medium';
-  document.getElementById('f-dist').value = p.dist || 'medium';
-  document.getElementById('f-roomhum').value = p.roomhum || 'average';
-  document.getElementById('f-vent').value = p.vent || 'no';
-  document.getElementById('f-age').value = p.age || 'established';
-  document.getElementById('f-moisture').value = p.moisture || 'moist';
-  document.getElementById('f-notes').value = p.notes || '';
-  if (p.lastWater) document.getElementById('f-last-water').value = new Date(p.lastWater).toISOString().split('T')[0];
-  if (p.lastFeed) document.getElementById('f-last-feed').value = new Date(p.lastFeed).toISOString().split('T')[0];
-  // show species profile if exists
-  if (p.profile) {
-    selectedProfile = p.profile;
-    showProfile(p.profile);
-  }
-  showTab('add');
-}
-
-function submitPlant() {
-  if (_editIdx !== null) {
-    saveEdit();
-  } else {
-    addPlant();
-  }
-}
-
-function saveEdit() {
-  const i = _editIdx;
-  const name = document.getElementById('f-name').value.trim();
-  const species = document.getElementById('f-species').value.trim();
-  if (!name) { alert('Please enter a nickname.'); return; }
-  if (!species) { alert('Please enter the plant type.'); return; }
-  const lw = document.getElementById('f-last-water').value;
-  const lf = document.getElementById('f-last-feed').value;
-  // preserve photos and adjustment
-  plants[i] = Object.assign(plants[i], {
-    name, species,
-    pot: document.getElementById('f-pot').value,
-    drain: document.getElementById('f-drain').value,
-    soil: document.getElementById('f-soil').value,
-    potsize: document.getElementById('f-potsize').value,
-    ferttype: document.getElementById('f-ferttype').value,
-    dir: document.getElementById('f-dir').value,
-    light: document.getElementById('f-light').value,
-    dist: document.getElementById('f-dist').value,
-    roomhum: document.getElementById('f-roomhum').value,
-    vent: document.getElementById('f-vent').value,
-    age: document.getElementById('f-age').value,
-    moisture: document.getElementById('f-moisture').value,
-    notes: document.getElementById('f-notes').value,
-    lastWater: lw ? new Date(lw).getTime() : plants[i].lastWater,
-    lastFeed: lf ? new Date(lf).getTime() : plants[i].lastFeed,
-    profile: selectedProfile || plants[i].profile,
+  const allCollapsed = plants.every(p => p.collapsed);
+  let html = '<button class="collapse-all" onclick="toggleAll()">' + (allCollapsed ? "Expand all" : "Collapse all") + "</button>";
+  plants.forEach((p, i) => {
+    const pr = p.profile || {};
+    const wd = calcWater(p);
+    const fw = calcFeed(p);
+    const ws = status(p.lastWater, wd);
+    const fs = fw ? status(p.lastFeed, fw * 7) : { t:"Dormant", c:"s-dorm" };
+    const dots = { low:1, medium:2, bright:3, direct:4 }[p.light] || 2;
+    const pips = [1,2,3,4].map(n => '<div class="ldot' + (n <= dots ? " on" : "") + '"></div>').join("");
+    const drainTag = p.drain === "no" ? '<span class="tag tag-w">No drainage</span>' : p.drain === "leca" ? '<span class="tag">Leca layer</span>' : "";
+    const ventTag = p.vent === "yes" ? '<span class="tag tag-w">Near vent</span>' : "";
+    const dirMap = { north:"N window", east:"E window", south:"S window", west:"W window" };
+    const fertMap = { liquid:"liquid fert", concentrated:"conc. fert", slowrelease:"slow-release", none:"no fert" };
+    const iconHtml = p.photos && p.photos.length
+      ? '<div class="card-icon has-photo" onclick="lbOpen(' + i + ',0)"><img src="' + p.photos[0] + '" alt="plant"></div>'
+      : '<div class="card-icon">' + (pr.e || "🪴") + '</div>';
+    const thumbs = (p.photos || []).map((src, j) =>
+      '<img class="photo-thumb" src="' + src + '" onclick="lbOpen(' + i + ',' + j + ')" alt="photo">'
+    ).join("");
+    const collapsed = p.collapsed ? "card-collapsed" : "";
+    const feedCapNote = (function() {
+      const fw2 = FTW[p.ferttype];
+      const raw = fw2 ? Math.round(fw2 * (SF[season] || 1)) : null;
+      return (pr.mf && raw && raw < pr.mf && fw) ? '<div class="care-note">Capped for slow grower</div>' : "";
+    })();
+    html += '<div class="plant-card ' + collapsed + '" id="card-' + i + '">' +
+      '<div class="card-top">' +
+        iconHtml +
+        '<div class="card-info">' +
+          '<div class="card-name">' + p.name + '</div>' +
+          '<div class="card-meta">' + p.species + ' · ' + p.pot + ' · ' + (fertMap[p.ferttype] || "liquid fert") + '</div>' +
+        '</div>' +
+        '<div class="card-btns">' +
+          '<button class="card-btn" onclick="toggleCollapse(' + i + ')" title="Expand/collapse">' + (p.collapsed ? "▼" : "▲") + '</button>' +
+          '<button class="card-btn" onclick="editPlant(' + i + ')" title="Edit">✎</button>' +
+          '<button class="card-btn del" onclick="deletePlant(' + i + ')" title="Delete">×</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-summary">' +
+        '<div class="sum-item">💧 ' + nextDate(p.lastWater, wd) + ' <span class="sbadge ' + ws.c + '">' + ws.t + '</span></div>' +
+        '<div class="sum-div"></div>' +
+        '<div class="sum-item">🌿 ' + (fw ? nextDate(p.lastFeed, fw * 7) : "No feeding") + (fw ? ' <span class="sbadge ' + fs.c + '">' + fs.t + '</span>' : '') + '</div>' +
+      '</div>' +
+      (pr.s ? '<div class="card-profile"><div class="card-profile-lbl">Care profile</div>' + pr.s + '<br><small style="color:var(--tl)">' + (pr.wt || "") + '</small></div>' : '') +
+      '<div class="card-light">' + pips + '<span class="ltxt">' + p.light + ' light</span><span class="tag">' + (dirMap[p.dir] || p.dir) + '</span>' + drainTag + ventTag + '</div>' +
+      '<div class="card-care">' +
+        '<div class="care-row">' +
+          '<div class="care-left"><div class="care-type">Watering</div><div class="care-sched">Every ~' + wd + ' days</div><div class="care-last">' + fmtLast(p.lastWater, "Last watered") + '</div></div>' +
+          '<span class="sbadge ' + ws.c + '">' + ws.t + '</span>' +
+          '<button class="log-btn" onclick="logWater(' + i + ')">Watered ✓</button>' +
+        '</div>' +
+        '<div class="care-row">' +
+          '<div class="care-left"><div class="care-type">Fertilizing</div><div class="care-sched">' + (fw ? "Every ~" + fw + " weeks" : "Dormant — skip") + '</div>' + feedCapNote + '<div class="care-last">' + fmtLast(p.lastFeed, "Last fed") + '</div></div>' +
+          '<span class="sbadge ' + fs.c + '">' + fs.t + '</span>' +
+          (fw ? '<button class="log-btn" onclick="logFeed(' + i + ')">Fed ✓</button>' : '<span></span>') +
+        '</div>' +
+      '</div>' +
+      '<div class="card-photos">' + thumbs + '<button class="photo-add-btn" onclick="startPhotoUpload(' + i + ')">+</button><span class="photo-count">' + (p.photos && p.photos.length ? p.photos.length + " photo" + (p.photos.length > 1 ? "s" : "") : "") + '</span></div>' +
+      '<div class="card-adjust">' +
+        '<div class="adj-hdr"><span>Schedule adjustment</span><span class="adj-val" id="av-' + i + '">' + adjLabel(p.adj || 0) + '</span></div>' +
+        '<div class="adj-track"><span class="adj-end">Dries faster</span><input type="range" class="adj-slider" min="-3" max="3" step="1" value="' + (p.adj || 0) + '" oninput="adjInput(' + i + ',this.value)" onchange="adjSave(' + i + ',this.value)"><span class="adj-end">Dries slower</span></div>' +
+      '</div>' +
+      '<div class="card-notes"><textarea class="notes-ta" rows="2" placeholder="Notes..." onblur="saveNote(' + i + ',this.value)">' + (p.notes || "") + '</textarea></div>' +
+    '</div>';
   });
-  _editIdx = null;
-  resetForm();
-  save();
-  showTab('plants');
+  el.innerHTML = html;
 }
 
-function resetForm() {
-  document.getElementById('form-title').textContent = 'Add a new plant';
-  document.getElementById('submit-btn').textContent = 'Save plant';
-  ['f-name','f-species','f-last-water','f-last-feed','f-notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-ferttype').value = 'liquid';
-  document.getElementById('species-box').classList.remove('visible');
-  selectedProfile = null;
-  _editIdx = null;
-}
-function save(){localStorage.setItem('verdant_v3',JSON.stringify(plants));}
-
-let _photoTargetIdx = null;
-function setPhotoTarget(i) {
-  _photoTargetIdx = i;
-  document.getElementById('global-file-input').value = '';
-}
-function addPhoto(input){
-  const f = input.files[0]; if(!f) return;
-  const i = _photoTargetIdx; if(i === null || i === undefined) return;
-  const img = new Image();
-  const objectUrl = URL.createObjectURL(f);
-  img.onload = function() {
-    URL.revokeObjectURL(objectUrl);
-    const MAX = 600;
-    let w = img.width, h = img.height;
-    if (w > h) { if (w > MAX) { h = Math.round(h * MAX/w); w = MAX; } }
-    else { if (h > MAX) { w = Math.round(w * MAX/h); h = MAX; } }
-    const canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    const compressed = canvas.toDataURL('image/jpeg', 0.7);
-    if(!plants[i].photos) plants[i].photos = [];
-    plants[i].photos.push(compressed);
-    try {
-      save();
-    } catch(e) {
-      alert('Storage full — try deleting some old photos first.');
-      plants[i].photos.pop();
-      return;
-    }
-    updateCardPhotos(i);
-  };
-  img.src = objectUrl;
-}
-function updateCardPhotos(i) {
-  const p = plants[i];
-  const card = document.getElementById('card-' + i);
-  if (!card) { renderPlants(); return; }
-  // Update emoji/icon
-  const emojiDiv = card.querySelector('.plant-emoji');
-  if (emojiDiv && p.photos && p.photos.length) {
-    emojiDiv.style.padding = '0';
-    emojiDiv.style.overflow = 'hidden';
-    emojiDiv.style.cursor = 'pointer';
-    emojiDiv.onclick = function() { openPhoto(i, 0); };
-    emojiDiv.innerHTML = '<img src="' + p.photos[0] + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">';
-  }
-  // Update photo row thumbnails and count
-  const photoRow = card.querySelector('.photo-row');
-  if (photoRow) {
-    const thumbs = p.photos.map((src,j) =>
-      '<img class="photo-thumb" src="' + src + '" onclick="openPhoto(' + i + ',' + j + ')" style="cursor:pointer">'
-    ).join('');
-    const countLabel = p.photos.length + ' photo' + (p.photos.length > 1 ? 's' : '');
-    photoRow.innerHTML = thumbs +
-      '<label class="photo-add" for="global-file-input" onclick="setPhotoTarget(' + i + ')">+</label>' +
-      '<span style="font-size:12px;color:var(--text-light)">' + countLabel + '</span>';
-  }
+function adjLabel(v) {
+  return { "-3":"Much faster", "-2":"Faster", "-1":"Slightly faster", "0":"On schedule", "1":"Slightly slower", "2":"Slower", "3":"Much slower" }[String(v)] || "On schedule";
 }
 
-function addPlant(){
-  const name=document.getElementById('f-name').value.trim();
-  const species=document.getElementById('f-species').value.trim();
-  if(!name){alert('Please enter a nickname.');return;}
-  if(!species){alert('Please enter the plant type.');return;}
-  const lw=document.getElementById('f-last-water').value;
-  const lf=document.getElementById('f-last-feed').value;
-  plants.push({
-    name,species,
-    pot:document.getElementById('f-pot').value,
-    drain:document.getElementById('f-drain').value,
-    soil:document.getElementById('f-soil').value,
-    potsize:document.getElementById('f-potsize').value,
-    dir:document.getElementById('f-dir').value,
-    light:document.getElementById('f-light').value,
-    dist:document.getElementById('f-dist').value,
-    roomhum:document.getElementById('f-roomhum').value,
-    vent:document.getElementById('f-vent').value,
-    age:document.getElementById('f-age').value,
-    moisture:document.getElementById('f-moisture').value,
-    notes:document.getElementById('f-notes').value,
-    lastWater:lw?new Date(lw).getTime():null,
-    lastFeed:lf?new Date(lf).getTime():null,
-    ferttype:document.getElementById('f-ferttype').value,
-    profile:selectedProfile,
-    photos:[]
-  });
-  resetForm();
-  save();showTab('plants');
+// ════════════════════════════════════════════════════
+// CARD ACTIONS
+// ════════════════════════════════════════════════════
+function logWater(i) { plants[i].lastWater = Date.now(); save(); renderPlants(); }
+function logFeed(i)  { plants[i].lastFeed  = Date.now(); save(); renderPlants(); }
+function saveNote(i, v) { plants[i].notes = v; save(); }
+
+function deletePlant(i) {
+  if (!confirm('Remove "' + plants[i].name + '"?')) return;
+  plants.splice(i, 1); save(); renderPlants();
 }
 
-async function fetchWeather(z){
-  try{
-    const g=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${z}&count=1&language=en&format=json`);
-    const gd=await g.json();
-    if(!gd.results?.length)return null;
-    const{latitude,longitude,name}=gd.results[0];
-    const w=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit&timezone=auto`);
-    const wd=await w.json();
-    const c=wd.current;
-    return{city:name,temp:Math.round(c.temperature_2m),humidity:c.relative_humidity_2m,code:c.weather_code};
-  }catch(e){return null;}
-}
-
-function wx(code){if(code===0)return'☀️';if(code<=3)return'⛅';if(code<=67)return'🌧️';if(code<=77)return'❄️';return'🌦️';}
-
-async function loadWeather(){
-  const z=localStorage.getItem('verdant_zip')||'';
-  if(!z)return;
-  const w=await fetchWeather(z);
-  if(w){
-    weather=w;humidity=w.humidity;
-    localStorage.setItem('verdant_weather',JSON.stringify(w));
-    document.getElementById('weather-bar').innerHTML=`${wx(w.code)} ${w.city}: <strong>${w.temp}°F</strong> · Humidity <strong>${w.humidity}%</strong>`;
-    document.getElementById('s-humidity').textContent=w.humidity+'%';
-    document.getElementById('s-temp').textContent=w.temp+'°F';
-  }
-}
-
-async function saveZip(){
-  const z=document.getElementById('zip-input').value.trim();
-  if(!/^\d{5}$/.test(z)){alert('Enter a valid 5-digit ZIP.');return;}
-  localStorage.setItem('verdant_zip',z);
-  document.getElementById('zip-display').textContent=z;
-  document.getElementById('zip-weather-result').textContent='Fetching...';
-  const w=await fetchWeather(z);
-  if(w){
-    weather=w;humidity=w.humidity;
-    localStorage.setItem('verdant_weather',JSON.stringify(w));
-    document.getElementById('zip-weather-result').textContent=`${w.city}: ${w.temp}°F, ${w.humidity}% humidity`;
-    document.getElementById('s-humidity').textContent=w.humidity+'%';
-    document.getElementById('s-temp').textContent=w.temp+'°F';
-    document.getElementById('weather-bar').innerHTML=`${wx(w.code)} ${w.city}: <strong>${w.temp}°F</strong> · Humidity <strong>${w.humidity}%</strong>`;
-    renderPlants();
-  }else{document.getElementById('zip-weather-result').textContent='Could not find location.';}
-}
-
-function getNextDate(lastTs, intervalDays) {
-  if (!lastTs) return 'Not logged';
-  const next = new Date(lastTs + intervalDays * 86400000);
-  const today = new Date();
-  const diff = Math.round((next - today) / 86400000);
-  if (diff < 0) return 'Overdue';
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Tomorrow';
-  return next.toLocaleDateString('en-US', { month:'short', day:'numeric' });
-}
 function toggleCollapse(i) {
   plants[i].collapsed = !plants[i].collapsed;
   save();
-  const card = document.getElementById('card-' + i);
+  const card = document.getElementById("card-" + i);
   if (card) {
-    card.classList.toggle('card-collapsed', plants[i].collapsed);
-    const btn = card.querySelector('.collapse-btn');
-    if (btn) btn.textContent = plants[i].collapsed ? '▼' : '▲';
-    // update collapse-all button label
+    card.classList.toggle("card-collapsed", plants[i].collapsed);
+    const btn = card.querySelector(".card-btns .card-btn");
+    if (btn) btn.textContent = plants[i].collapsed ? "▼" : "▲";
     const allCollapsed = plants.every(p => p.collapsed);
-    const caBtn = document.querySelector('.collapse-all-btn');
-    if (caBtn) caBtn.textContent = allCollapsed ? 'Expand all' : 'Collapse all';
-  }
-}
-function toggleCollapseAll() {
-  const allCollapsed = plants.every(p => p.collapsed);
-  plants.forEach(p => p.collapsed = !allCollapsed);
-  save();
-  renderPlants();
-}
-function getAdjLabel(v) {
-  const labels = { '-3':'Much faster', '-2':'Faster', '-1':'Slightly faster', '0':'On schedule', '1':'Slightly slower', '2':'Slower', '3':'Much slower' };
-  return labels[String(v)] || 'On schedule';
-}
-function updateAdj(i, v) {
-  document.getElementById('adj-label-'+i).textContent = getAdjLabel(v);
-  // live-update the schedule display
-  plants[i].adjustment = parseInt(v);
-  const waterDays = calcWater(plants[i]);
-  const card = document.querySelectorAll('.plant-card')[i];
-  if (card) {
-    const sched = card.querySelector('.care-schedule');
-    if (sched) sched.textContent = 'Every ~' + waterDays + ' days';
-  }
-}
-function saveAdj(i, v) {
-  plants[i].adjustment = parseInt(v);
-  save();
-  // Only update the schedule text, don't full re-render (preserves collapse state)
-  const card = document.getElementById('card-' + i);
-  if (card) {
-    const waterDays = calcWater(plants[i]);
-    const schedEls = card.querySelectorAll('.care-schedule');
-    if (schedEls[0]) schedEls[0].textContent = 'Every ~' + waterDays + ' days';
-  }
-}
-let lbPlantIdx = null, lbPhotoIdx = null;
-function openPhoto(plantI, photoI) {
-  const p = plants[plantI];
-  if (!p.photos || !p.photos.length) return;
-  lbPlantIdx = plantI; lbPhotoIdx = photoI;
-  document.getElementById('lightbox-img').src = p.photos[photoI];
-  document.getElementById('lb-label').textContent = (photoI+1) + ' of ' + p.photos.length;
-  document.getElementById('lb-prev').disabled = photoI === 0;
-  document.getElementById('lb-next').disabled = photoI === p.photos.length - 1;
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow = '';
-}
-function closeLightboxOutside(e) {
-  if (e.target === document.getElementById('lightbox')) closeLightbox();
-}
-function lightboxNav(dir) {
-  const p = plants[lbPlantIdx];
-  const newIdx = lbPhotoIdx + dir;
-  if (newIdx >= 0 && newIdx < p.photos.length) openPhoto(lbPlantIdx, newIdx);
-}
-function deletePhoto() {
-  if (!confirm('Delete this photo?')) return;
-  plants[lbPlantIdx].photos.splice(lbPhotoIdx, 1);
-  save();
-  closeLightbox();
-  renderPlants();
-}
-function showTab(name){
-  ['plants','add','settings'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'':'none';});
-  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',['plants','add','settings'][i]===name));
-  if(name==='plants')renderPlants();
-  if(name==='add' && _editIdx === null) resetForm();
-  if(name==='settings'){
-    const z=localStorage.getItem('verdant_zip')||'';
-    if(z){document.getElementById('zip-display').textContent=z;document.getElementById('zip-input').value=z;}
-    document.getElementById('s-season').textContent=season.charAt(0).toUpperCase()+season.slice(1);
+    const ca = document.querySelector(".collapse-all");
+    if (ca) ca.textContent = allCollapsed ? "Expand all" : "Collapse all";
   }
 }
 
-season=getSeason();
-document.getElementById('season-chip').textContent=season.charAt(0).toUpperCase()+season.slice(1);
-document.getElementById('s-season').textContent=season.charAt(0).toUpperCase()+season.slice(1);
+function toggleAll() {
+  const allCollapsed = plants.every(p => p.collapsed);
+  plants.forEach(p => p.collapsed = !allCollapsed);
+  save(); renderPlants();
+}
+
+function adjInput(i, v) {
+  document.getElementById("av-" + i).textContent = adjLabel(v);
+  plants[i].adj = parseInt(v);
+  const card = document.getElementById("card-" + i);
+  if (card) {
+    const s = card.querySelector(".care-sched");
+    if (s) s.textContent = "Every ~" + calcWater(plants[i]) + " days";
+  }
+}
+
+function adjSave(i, v) {
+  plants[i].adj = parseInt(v); save();
+}
+
+// ════════════════════════════════════════════════════
+// PHOTOS
+// ════════════════════════════════════════════════════
+function startPhotoUpload(i) {
+  photoTarget = i;
+  const inp = document.getElementById("photo-input");
+  inp.value = "";
+  inp.click();
+}
+
+function handlePhoto(input) {
+  const f = input.files[0];
+  if (!f || photoTarget === null) return;
+  const i = photoTarget;
+  const img = new Image();
+  const url = URL.createObjectURL(f);
+  img.onload = function() {
+    URL.revokeObjectURL(url);
+    const MAX = 600;
+    let w = img.width, h = img.height;
+    if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+    else        { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+    const data = canvas.toDataURL("image/jpeg", 0.72);
+    if (!plants[i].photos) plants[i].photos = [];
+    plants[i].photos.push(data);
+    try { save(); } catch(e) { plants[i].photos.pop(); toast("Storage full — delete some photos first."); return; }
+    renderPlants();
+    photoTarget = null;
+  };
+  img.src = url;
+}
+
+// ════════════════════════════════════════════════════
+// LIGHTBOX
+// ════════════════════════════════════════════════════
+function lbOpen(pi, ph) {
+  lbPlant = pi; lbPhoto = ph;
+  const photos = plants[pi].photos || [];
+  document.getElementById("lb-img").src = photos[ph];
+  document.getElementById("lb-label").textContent = (ph + 1) + " of " + photos.length;
+  document.getElementById("lb-prev").disabled = ph === 0;
+  document.getElementById("lb-next").disabled = ph === photos.length - 1;
+  document.getElementById("lightbox").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function lbClose() { document.getElementById("lightbox").classList.remove("open"); document.body.style.overflow = ""; }
+function lbOutside(e) { if (e.target === document.getElementById("lightbox")) lbClose(); }
+function lbNav(dir) { const p = plants[lbPlant]; lbOpen(lbPlant, lbPhoto + dir); }
+function lbDelete() {
+  if (!confirm("Delete this photo?")) return;
+  plants[lbPlant].photos.splice(lbPhoto, 1);
+  save(); lbClose(); renderPlants();
+}
+
+// ════════════════════════════════════════════════════
+// ADD / EDIT FORM
+// ════════════════════════════════════════════════════
+let aiTimer = null;
+
+function searchSpecies() {
+  clearTimeout(aiTimer);
+  aiTimer = setTimeout(doSearch, 400);
+}
+
+function doSearch() {
+  const q = document.getElementById("f-species").value.trim().toLowerCase();
+  const box = document.getElementById("species-box");
+  const info = document.getElementById("species-info");
+  const sugg = document.getElementById("suggest-list");
+  selProfile = null;
+  if (q.length < 2) { box.classList.remove("show"); return; }
+
+  const key = ALIASES[q] || (DB[q] ? q : null);
+  if (key) { showProfile(DB[key]); sugg.innerHTML = ""; return; }
+
+  const hits = [...new Set([
+    ...Object.keys(DB).filter(k => k.includes(q) || DB[k].n.toLowerCase().includes(q)),
+    ...Object.entries(ALIASES).filter(([a]) => a.includes(q)).map(([,k]) => k).filter(k => DB[k])
+  ])];
+
+  if (hits.length === 1) { showProfile(DB[hits[0]]); sugg.innerHTML = ""; return; }
+  if (hits.length > 1) {
+    box.classList.add("show");
+    info.innerHTML = '<span style="color:var(--tl)">Multiple matches — tap to select:</span>';
+    sugg.innerHTML = hits.slice(0, 8).map(k =>
+      '<span class="suggest-chip" onclick="pickSpecies(\'' + k + '\')">' + DB[k].e + " " + DB[k].n + '</span>'
+    ).join("");
+    return;
+  }
+  box.classList.add("show");
+  info.innerHTML = '<span style="color:var(--am)">Not in database — will use general defaults.</span>';
+  sugg.innerHTML = "";
+  selProfile = { e:"🪴", n:document.getElementById("f-species").value, w:10, f:5, d:"medium", s:"General care defaults.", wt:"Water when top 1-2 inches of soil are dry.", ft:"Feed monthly in spring and summer." };
+}
+
+function pickSpecies(k) {
+  document.getElementById("f-species").value = DB[k].n;
+  showProfile(DB[k]);
+  document.getElementById("suggest-list").innerHTML = "";
+}
+
+function showProfile(pr) {
+  selProfile = pr;
+  const box = document.getElementById("species-box");
+  const info = document.getElementById("species-info");
+  box.classList.add("show");
+  info.innerHTML = "<strong>" + pr.e + " " + pr.n + "</strong><br>" + pr.s + "<br><br><strong>Watering:</strong> " + pr.wt + "<br><strong>Feeding:</strong> " + pr.ft;
+}
+
+function submitPlant() {
+  editIdx !== null ? saveEdit() : addPlant();
+}
+
+function gatherForm() {
+  return {
+    name:     document.getElementById("f-name").value.trim(),
+    species:  document.getElementById("f-species").value.trim(),
+    pot:      document.getElementById("f-pot").value,
+    drain:    document.getElementById("f-drain").value,
+    soil:     document.getElementById("f-soil").value,
+    potsize:  document.getElementById("f-potsize").value,
+    ferttype: document.getElementById("f-ferttype").value,
+    dir:      document.getElementById("f-dir").value,
+    light:    document.getElementById("f-light").value,
+    dist:     document.getElementById("f-dist").value,
+    roomhum:  document.getElementById("f-roomhum").value,
+    vent:     document.getElementById("f-vent").value,
+    age:      document.getElementById("f-age").value,
+    moisture: document.getElementById("f-moisture").value,
+    notes:    document.getElementById("f-notes").value,
+    lw:       document.getElementById("f-last-water").value,
+    lf:       document.getElementById("f-last-feed").value,
+  };
+}
+
+function addPlant() {
+  const f = gatherForm();
+  if (!f.name) { alert("Please enter a nickname."); return; }
+  if (!f.species) { alert("Please enter the plant type."); return; }
+  plants.push({
+    name: f.name, species: f.species, pot: f.pot, drain: f.drain, soil: f.soil,
+    potsize: f.potsize, ferttype: f.ferttype, dir: f.dir, light: f.light, dist: f.dist,
+    roomhum: f.roomhum, vent: f.vent, age: f.age, moisture: f.moisture, notes: f.notes,
+    lastWater: f.lw ? new Date(f.lw).getTime() : null,
+    lastFeed:  f.lf ? new Date(f.lf).getTime() : null,
+    profile: selProfile, photos: [], adj: 0, collapsed: false
+  });
+  save(); resetForm(); showTab("plants");
+}
+
+function saveEdit() {
+  const f = gatherForm();
+  if (!f.name) { alert("Please enter a nickname."); return; }
+  if (!f.species) { alert("Please enter the plant type."); return; }
+  const existing = plants[editIdx];
+  plants[editIdx] = Object.assign({}, existing, {
+    name: f.name, species: f.species, pot: f.pot, drain: f.drain, soil: f.soil,
+    potsize: f.potsize, ferttype: f.ferttype, dir: f.dir, light: f.light, dist: f.dist,
+    roomhum: f.roomhum, vent: f.vent, age: f.age, moisture: f.moisture, notes: f.notes,
+    lastWater: f.lw ? new Date(f.lw).getTime() : existing.lastWater,
+    lastFeed:  f.lf ? new Date(f.lf).getTime() : existing.lastFeed,
+    profile: selProfile || existing.profile,
+  });
+  save(); resetForm(); showTab("plants");
+}
+
+function editPlant(i) {
+  editIdx = i;
+  const p = plants[i];
+  document.getElementById("form-title").textContent = "Edit plant";
+  document.getElementById("submit-btn").textContent = "Save changes";
+  document.getElementById("f-name").value = p.name || "";
+  document.getElementById("f-species").value = p.species || "";
+  document.getElementById("f-pot").value = p.pot || "ceramic";
+  document.getElementById("f-drain").value = p.drain || "yes";
+  document.getElementById("f-soil").value = p.soil || "standard";
+  document.getElementById("f-potsize").value = p.potsize || "snug";
+  document.getElementById("f-ferttype").value = p.ferttype || "liquid";
+  document.getElementById("f-dir").value = p.dir || "south";
+  document.getElementById("f-light").value = p.light || "medium";
+  document.getElementById("f-dist").value = p.dist || "medium";
+  document.getElementById("f-roomhum").value = p.roomhum || "average";
+  document.getElementById("f-vent").value = p.vent || "no";
+  document.getElementById("f-age").value = p.age || "established";
+  document.getElementById("f-moisture").value = p.moisture || "moist";
+  document.getElementById("f-notes").value = p.notes || "";
+  if (p.lastWater) document.getElementById("f-last-water").value = new Date(p.lastWater).toISOString().split("T")[0];
+  if (p.lastFeed)  document.getElementById("f-last-feed").value  = new Date(p.lastFeed).toISOString().split("T")[0];
+  if (p.profile) { selProfile = p.profile; showProfile(p.profile); }
+  showTab("add");
+}
+
+function resetForm() {
+  editIdx = null; selProfile = null;
+  document.getElementById("form-title").textContent = "Add a new plant";
+  document.getElementById("submit-btn").textContent = "Save plant";
+  ["f-name","f-species","f-last-water","f-last-feed","f-notes"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("f-ferttype").value = "liquid";
+  document.getElementById("species-box").classList.remove("show");
+}
+
+// ════════════════════════════════════════════════════
+// WEATHER
+// ════════════════════════════════════════════════════
+async function fetchWeather(zip) {
+  try {
+    const g = await fetch("https://geocoding-api.open-meteo.com/v1/search?name=" + zip + "&count=1&language=en&format=json");
+    const gd = await g.json();
+    if (!gd.results || !gd.results.length) return null;
+    const { latitude, longitude, name } = gd.results[0];
+    const w = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + latitude + "&longitude=" + longitude + "&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit&timezone=auto");
+    const wd = await w.json();
+    const c = wd.current;
+    return { city: name, temp: Math.round(c.temperature_2m), humidity: c.relative_humidity_2m, code: c.weather_code };
+  } catch(e) { return null; }
+}
+
+function wxIcon(code) {
+  if (code === 0) return "☀️";
+  if (code <= 3) return "⛅";
+  if (code <= 67) return "🌧️";
+  if (code <= 77) return "❄️";
+  return "🌦️";
+}
+
+async function loadWeather() {
+  const zip = localStorage.getItem("verdant_zip") || "";
+  if (!zip) return;
+  const w = await fetchWeather(zip);
+  if (w) {
+    wdata = w; outsideHumidity = w.humidity;
+    localStorage.setItem("verdant_wx", JSON.stringify(w));
+    document.getElementById("wbar").innerHTML = wxIcon(w.code) + " " + w.city + ": <strong>" + w.temp + "°F</strong> · Humidity <strong>" + w.humidity + "%</strong>";
+    document.getElementById("s-humidity").textContent = w.humidity + "%";
+    document.getElementById("s-temp").textContent = w.temp + "°F";
+  }
+}
+
+async function saveZip() {
+  const z = document.getElementById("zip-input").value.trim();
+  if (!/^\d{5}$/.test(z)) { alert("Please enter a valid 5-digit ZIP."); return; }
+  localStorage.setItem("verdant_zip", z);
+  document.getElementById("s-zip").textContent = z;
+  document.getElementById("zip-result").textContent = "Fetching...";
+  const w = await fetchWeather(z);
+  if (w) {
+    wdata = w; outsideHumidity = w.humidity;
+    localStorage.setItem("verdant_wx", JSON.stringify(w));
+    document.getElementById("zip-result").textContent = w.city + ": " + w.temp + "°F, " + w.humidity + "% humidity";
+    document.getElementById("s-humidity").textContent = w.humidity + "%";
+    document.getElementById("s-temp").textContent = w.temp + "°F";
+    document.getElementById("wbar").innerHTML = wxIcon(w.code) + " " + w.city + ": <strong>" + w.temp + "°F</strong> · Humidity <strong>" + w.humidity + "%</strong>";
+    renderPlants();
+  } else {
+    document.getElementById("zip-result").textContent = "Could not find location.";
+  }
+}
+
+// ════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════════════════
+let swReg = null;
+
+async function initNotifications() {
+  if (!("serviceWorker" in navigator) || !("Notification" in window)) return;
+  try {
+    swReg = await navigator.serviceWorker.register("/service-worker.js");
+    if (Notification.permission === "granted") {
+      checkPlantsNow();
+    } else if (Notification.permission === "default" && !localStorage.getItem("verdant_notif_dismissed")) {
+      setTimeout(function() { document.getElementById("nbanner").classList.add("show"); }, 2000);
+    }
+  } catch(e) { /* SW not available, fail silently */ }
+}
+
+async function enableNotifs() {
+  document.getElementById("nbanner").classList.remove("show");
+  const perm = await Notification.requestPermission();
+  if (perm === "granted") {
+    toast("Notifications enabled!");
+    checkPlantsNow();
+    updateNotifSettings();
+  }
+}
+
+function dismissNotifBanner() {
+  document.getElementById("nbanner").classList.remove("show");
+  localStorage.setItem("verdant_notif_dismissed", "1");
+}
+
+function checkPlantsNow() {
+  if (!swReg || !swReg.active || Notification.permission !== "granted") return;
+  const data = plants.map(p => ({ name: p.name, lastWater: p.lastWater, waterDays: calcWater(p) }));
+  swReg.active.postMessage({ type: "VERDANT_CHECK", plants: data, now: Date.now() });
+}
+
+function updateNotifSettings() {
+  const el = document.getElementById("s-notif");
+  const btnRow = document.getElementById("s-notif-btn-row");
+  if (!("Notification" in window)) { if (el) el.textContent = "Not supported"; return; }
+  const perm = Notification.permission;
+  if (el) {
+    el.textContent = perm === "granted" ? "Enabled" : perm === "denied" ? "Blocked in Settings" : "Not enabled";
+    el.style.color = perm === "granted" ? "var(--gm)" : perm === "denied" ? "var(--am)" : "var(--tl)";
+  }
+  if (btnRow) {
+    btnRow.innerHTML = perm === "default"
+      ? '<button class="notif-btn" onclick="enableNotifs()">Enable notifications</button>'
+      : perm === "denied"
+      ? '<p style="font-size:12px;color:var(--tl);margin-top:8px">To enable, go to iPhone Settings > Safari > Notifications and allow this site.</p>'
+      : "";
+  }
+}
+
+// ════════════════════════════════════════════════════
+// STORAGE
+// ════════════════════════════════════════════════════
+function save() { localStorage.setItem("verdant_v4", JSON.stringify(plants)); }
+function clearAll() { if (confirm("Remove all plants? Cannot be undone.")) { plants = []; save(); renderPlants(); } }
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(function() { t.classList.remove("show"); }, 3000);
+}
+
+// ════════════════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════════════════
+function showTab(name) {
+  ["plants","add","settings"].forEach(function(t) {
+    document.getElementById("tab-" + t).style.display = t === name ? "" : "none";
+    document.getElementById("tab-btn-" + t).classList.toggle("active", t === name);
+  });
+  if (name === "plants") renderPlants();
+  if (name === "add" && editIdx === null) resetForm();
+  if (name === "settings") {
+    const zip = localStorage.getItem("verdant_zip") || "";
+    if (zip) { document.getElementById("s-zip").textContent = zip; document.getElementById("zip-input").value = zip; }
+    document.getElementById("s-season").textContent = season.charAt(0).toUpperCase() + season.slice(1);
+    updateNotifSettings();
+  }
+}
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+season = getSeason();
+document.getElementById("season-chip").textContent = season.charAt(0).toUpperCase() + season.slice(1);
+document.getElementById("s-season").textContent = season.charAt(0).toUpperCase() + season.slice(1);
 loadWeather();
 renderPlants();
+initNotifications();
 </script>
-<input type="file" id="global-file-input" accept="image/*" style="display:none" onchange="addPhoto(this)">
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightboxOutside(event)">
-  <div style="display:flex;flex-direction:column;align-items:center">
-    <img class="lightbox-img" id="lightbox-img" src="" alt="Plant photo">
-    <div class="lightbox-bar">
-      <div class="lightbox-nav">
-        <button id="lb-prev" onclick="lightboxNav(-1)">&#8249;</button>
-        <button id="lb-next" onclick="lightboxNav(1)">&#8250;</button>
-      </div>
-      <span class="lightbox-label" id="lb-label"></span>
-      <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-    </div>
-    <button class="lightbox-delete" onclick="deletePhoto()">Delete this photo</button>
-  </div>
-</div>
 </body>
 </html>
