@@ -64,6 +64,12 @@
   .photo-add { width: 44px; height: 44px; border-radius: 8px; border: 1.5px dashed var(--border); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-light); transition: all 0.15s; }
   .photo-add:hover { border-color: var(--green-bright); color: var(--green-mid); background: var(--green-lightest); }
   input[type=file] { display: none; }
+  .adjust-row { padding: 10px 1.25rem 8px; border-top: 1px solid var(--border); }
+  .adjust-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 500; color: var(--text-mid); }
+  .adj-val { font-size: 12px; font-weight: 500; color: var(--green-mid); }
+  .adjust-track { display: flex; align-items: center; gap: 8px; }
+  .adj-end { font-size: 11px; color: var(--text-light); white-space: nowrap; }
+  .adj-slider { flex: 1; accent-color: var(--green-mid); }
   .notes-row { padding: 8px 1.25rem 12px; border-top: 1px solid var(--border); }
   .notes-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-dark); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; resize: none; background: var(--green-lightest); transition: border 0.2s; }
   .notes-input:focus { outline: none; border-color: var(--green-bright); }
@@ -161,7 +167,8 @@
           <label class="form-label">Drainage holes?</label>
           <select class="form-select" id="f-drain">
             <option value="yes">Yes — has drainage holes</option>
-            <option value="no">No — no drainage holes</option>
+            <option value="no">No drainage holes</option>
+            <option value="leca">No holes but has leca / gravel layer</option>
             <option value="tray">Yes, but sits in tray</option>
           </select>
         </div>
@@ -495,7 +502,7 @@ const DIST_M    = { "very-close":1.2, close:1.1, medium:1.0, far:0.85 };
 const POT_M     = { terracotta:0.85, plastic:1.2, ceramic:1.0, fabric:0.8 };
 const SOIL_M    = { standard:1.0, "well-draining":0.85, "moisture-retaining":1.2, succulent:0.75 };
 const AGE_M     = { young:1.15, established:1.0, large:0.9 };
-const DRAIN_M   = { yes:1.0, no:1.4, tray:1.15 };
+const DRAIN_M   = { yes:1.0, no:1.4, leca:1.05, tray:1.15 };
 const POTSIZE_M = { snug:1.0, large:1.25, small:0.9 };
 const VENT_M    = { no:1.0, yes:0.85 };
 const ROOMHUM_M = { dry:0.9, average:1.0, humid:1.15 };
@@ -607,6 +614,9 @@ function calcWater(p) {
   d *= VENT_M[p.vent]||1;
   d *= ROOMHUM_M[p.roomhum]||1;
   d *= 1 + (50 - humidity) / 200;
+  // personal adjustment: -3 (dries faster) to +3 (dries slower), each step = 15%
+  const adj = p.adjustment || 0;
+  d *= 1 + (adj * 0.15);
   return Math.max(1, Math.round(d));
 }
 
@@ -656,7 +666,7 @@ function renderPlants() {
     const fStatus = feedWks ? getStatus(p.lastFeed, feedWks*7) : {text:'Dormant — skip', cls:'s-dormant'};
     const dots = LIGHTDOTS[p.light]||2;
     const pips = [1,2,3,4].map(n=>`<div class="light-dot ${n<=dots?'on':''}"></div>`).join('');
-    const drainWarn = p.drain==='no' ? `<span class="tag tag-warn">No drainage — water carefully</span>` : '';
+    const drainWarn = p.drain==='no' ? `<span class="tag tag-warn">No drainage — water carefully</span>` : p.drain==='leca' ? `<span class="tag">Leca drainage layer</span>` : '';
     const ventWarn = p.vent==='yes' ? `<span class="tag tag-warn">Near vent</span>` : '';
     const photos = (p.photos||[]).map(src=>`<img class="photo-thumb" src="${src}">`).join('');
     return `<div class="plant-card" style="animation-delay:${i*0.05}s">
@@ -691,6 +701,20 @@ function renderPlants() {
         </div>
       </div>
       <div class="photo-row">${photos}<label class="photo-add">+<input type="file" accept="image/*" onchange="addPhoto(${i},this)"></label><span style="font-size:12px;color:var(--text-light)">Add photo</span></div>
+      <div class="adjust-row">
+        <div class="adjust-label">
+          <span>Schedule adjustment</span>
+          <span id="adj-label-${i}" class="adj-val">${getAdjLabel(p.adjustment||0)}</span>
+        </div>
+        <div class="adjust-track">
+          <span class="adj-end">Dries faster</span>
+          <input type="range" min="-3" max="3" step="1" value="${p.adjustment||0}"
+            oninput="updateAdj(${i}, this.value)"
+            onchange="saveAdj(${i}, this.value)"
+            class="adj-slider">
+          <span class="adj-end">Dries slower</span>
+        </div>
+      </div>
       <div class="notes-row"><textarea class="notes-input" rows="2" placeholder="Notes..." onblur="saveNote(${i},this.value)">${p.notes||''}</textarea></div>
     </div>`;
   }).join('');
@@ -788,6 +812,22 @@ async function saveZip(){
   }else{document.getElementById('zip-weather-result').textContent='Could not find location.';}
 }
 
+function getAdjLabel(v) {
+  const labels = { '-3':'Much faster', '-2':'Faster', '-1':'Slightly faster', '0':'On schedule', '1':'Slightly slower', '2':'Slower', '3':'Much slower' };
+  return labels[String(v)] || 'On schedule';
+}
+function updateAdj(i, v) {
+  document.getElementById('adj-label-'+i).textContent = getAdjLabel(v);
+  // live-update the schedule display
+  plants[i].adjustment = parseInt(v);
+  const waterDays = calcWater(plants[i]);
+  const card = document.querySelectorAll('.plant-card')[i];
+  if (card) {
+    const sched = card.querySelector('.care-schedule');
+    if (sched) sched.textContent = 'Every ~' + waterDays + ' days';
+  }
+}
+function saveAdj(i, v) { plants[i].adjustment = parseInt(v); save(); renderPlants(); }
 function showTab(name){
   ['plants','add','settings'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'':'none';});
   document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',['plants','add','settings'][i]===name));
