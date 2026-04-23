@@ -35,6 +35,8 @@
   .plant-name { font-size: 16px; font-weight: 500; color: var(--text-dark); }
   .plant-meta { font-size: 12px; color: var(--text-light); margin-top: 3px; line-height: 1.5; }
   .plant-delete { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 20px; line-height: 1; padding: 2px 4px; border-radius: 6px; }
+  .edit-btn { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 6px; }
+  .edit-btn:hover { background: var(--green-lightest); color: var(--green-mid); }
   .plant-delete:hover { background: #fde8e8; color: #c0392b; }
   .care-profile { margin: 0 1.25rem 0.75rem; padding: 10px 12px; background: var(--green-lightest); border-radius: 8px; border: 1px solid var(--green-pale); font-size: 12px; color: var(--text-mid); line-height: 1.6; }
   .care-profile-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green-mid); margin-bottom: 4px; }
@@ -157,7 +159,7 @@
 
   <div id="tab-add" style="display:none">
     <div class="add-form">
-      <div class="form-title">Add a new plant</div>
+      <div class="form-title" id="form-title">Add a new plant</div>
 
       <div class="form-section-label">Plant identity</div>
       <div class="form-grid">
@@ -310,7 +312,7 @@
         <textarea class="form-textarea" id="f-notes" placeholder="Quirks, pest history, anything worth remembering..."></textarea>
       </div>
 
-      <button class="submit-btn" onclick="addPlant()">Save plant</button>
+      <button class="submit-btn" id="submit-btn" onclick="submitPlant()">Save plant</button>
     </div>
   </div>
 
@@ -733,6 +735,7 @@ function renderPlants() {
           <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil · ${({liquid:'liquid fert',concentrated:'concentrated fert',slowrelease:'slow-release fert',none:'no fert'})[p.ferttype]||'liquid fert'}</div>
         </div>
         <button class="collapse-btn" onclick="toggleCollapse(${i})" title="Collapse/expand">${collapseIcon}</button>
+        <button class="edit-btn" onclick="editPlant(${i})" title="Edit">✎</button>
         <button class="plant-delete" onclick="deletePlant(${i})">×</button>
       </div>
       <div class="card-summary">
@@ -788,6 +791,90 @@ function logFeed(i){plants[i].lastFeed=Date.now();save();renderPlants();}
 function deletePlant(i){if(confirm(`Remove "${plants[i].name}"?`)){plants.splice(i,1);save();renderPlants();}}
 function saveNote(i,v){plants[i].notes=v;save();}
 function clearAll(){if(confirm('Remove all plants?')){plants=[];save();renderPlants();}}
+
+let _editIdx = null;
+
+function editPlant(i) {
+  const p = plants[i];
+  _editIdx = i;
+  document.getElementById('form-title').textContent = 'Edit plant';
+  document.getElementById('submit-btn').textContent = 'Save changes';
+  document.getElementById('f-name').value = p.name || '';
+  document.getElementById('f-species').value = p.species || '';
+  document.getElementById('f-pot').value = p.pot || 'ceramic';
+  document.getElementById('f-drain').value = p.drain || 'yes';
+  document.getElementById('f-soil').value = p.soil || 'standard';
+  document.getElementById('f-potsize').value = p.potsize || 'snug';
+  document.getElementById('f-ferttype').value = p.ferttype || 'liquid';
+  document.getElementById('f-dir').value = p.dir || 'south';
+  document.getElementById('f-light').value = p.light || 'medium';
+  document.getElementById('f-dist').value = p.dist || 'medium';
+  document.getElementById('f-roomhum').value = p.roomhum || 'average';
+  document.getElementById('f-vent').value = p.vent || 'no';
+  document.getElementById('f-age').value = p.age || 'established';
+  document.getElementById('f-moisture').value = p.moisture || 'moist';
+  document.getElementById('f-notes').value = p.notes || '';
+  if (p.lastWater) document.getElementById('f-last-water').value = new Date(p.lastWater).toISOString().split('T')[0];
+  if (p.lastFeed) document.getElementById('f-last-feed').value = new Date(p.lastFeed).toISOString().split('T')[0];
+  // show species profile if exists
+  if (p.profile) {
+    selectedProfile = p.profile;
+    showProfile(p.profile);
+  }
+  showTab('add');
+}
+
+function submitPlant() {
+  if (_editIdx !== null) {
+    saveEdit();
+  } else {
+    addPlant();
+  }
+}
+
+function saveEdit() {
+  const i = _editIdx;
+  const name = document.getElementById('f-name').value.trim();
+  const species = document.getElementById('f-species').value.trim();
+  if (!name) { alert('Please enter a nickname.'); return; }
+  if (!species) { alert('Please enter the plant type.'); return; }
+  const lw = document.getElementById('f-last-water').value;
+  const lf = document.getElementById('f-last-feed').value;
+  // preserve photos and adjustment
+  plants[i] = Object.assign(plants[i], {
+    name, species,
+    pot: document.getElementById('f-pot').value,
+    drain: document.getElementById('f-drain').value,
+    soil: document.getElementById('f-soil').value,
+    potsize: document.getElementById('f-potsize').value,
+    ferttype: document.getElementById('f-ferttype').value,
+    dir: document.getElementById('f-dir').value,
+    light: document.getElementById('f-light').value,
+    dist: document.getElementById('f-dist').value,
+    roomhum: document.getElementById('f-roomhum').value,
+    vent: document.getElementById('f-vent').value,
+    age: document.getElementById('f-age').value,
+    moisture: document.getElementById('f-moisture').value,
+    notes: document.getElementById('f-notes').value,
+    lastWater: lw ? new Date(lw).getTime() : plants[i].lastWater,
+    lastFeed: lf ? new Date(lf).getTime() : plants[i].lastFeed,
+    profile: selectedProfile || plants[i].profile,
+  });
+  _editIdx = null;
+  resetForm();
+  save();
+  showTab('plants');
+}
+
+function resetForm() {
+  document.getElementById('form-title').textContent = 'Add a new plant';
+  document.getElementById('submit-btn').textContent = 'Save plant';
+  ['f-name','f-species','f-last-water','f-last-feed','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-ferttype').value = 'liquid';
+  document.getElementById('species-box').classList.remove('visible');
+  selectedProfile = null;
+  _editIdx = null;
+}
 function save(){localStorage.setItem('verdant_v3',JSON.stringify(plants));}
 
 let _photoTargetIdx = null;
@@ -798,15 +885,30 @@ function setPhotoTarget(i) {
 function addPhoto(input){
   const f = input.files[0]; if(!f) return;
   const i = _photoTargetIdx; if(i === null || i === undefined) return;
-  const r = new FileReader();
-  r.onload = function(e) {
+  const img = new Image();
+  const objectUrl = URL.createObjectURL(f);
+  img.onload = function() {
+    URL.revokeObjectURL(objectUrl);
+    const MAX = 600;
+    let w = img.width, h = img.height;
+    if (w > h) { if (w > MAX) { h = Math.round(h * MAX/w); w = MAX; } }
+    else { if (h > MAX) { w = Math.round(w * MAX/h); h = MAX; } }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    const compressed = canvas.toDataURL('image/jpeg', 0.7);
     if(!plants[i].photos) plants[i].photos = [];
-    plants[i].photos.push(e.target.result);
-    save();
-    // Update just the photo row and emoji without full re-render to avoid collapse state loss
+    plants[i].photos.push(compressed);
+    try {
+      save();
+    } catch(e) {
+      alert('Storage full — try deleting some old photos first.');
+      plants[i].photos.pop();
+      return;
+    }
     updateCardPhotos(i);
   };
-  r.readAsDataURL(f);
+  img.src = objectUrl;
 }
 function updateCardPhotos(i) {
   const p = plants[i];
@@ -861,10 +963,7 @@ function addPlant(){
     profile:selectedProfile,
     photos:[]
   });
-  ['f-name','f-species','f-last-water','f-last-feed','f-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-ferttype').value='liquid';
-  document.getElementById('species-box').classList.remove('visible');
-  selectedProfile=null;
+  resetForm();
   save();showTab('plants');
 }
 
@@ -1005,6 +1104,7 @@ function showTab(name){
   ['plants','add','settings'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'':'none';});
   document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',['plants','add','settings'][i]===name));
   if(name==='plants')renderPlants();
+  if(name==='add' && _editIdx === null) resetForm();
   if(name==='settings'){
     const z=localStorage.getItem('verdant_zip')||'';
     if(z){document.getElementById('zip-display').textContent=z;document.getElementById('zip-input').value=z;}
