@@ -763,7 +763,7 @@ function renderPlants() {
           ${feedWks?`<button class="log-btn" onclick="logFeed(${i})">Fed ✓</button>`:'<span></span>'}
         </div>
       </div>
-      <div class="photo-row">${photoThumbs}<button class="photo-add" onclick="triggerPhotoUpload(${i})" type="button">+</button><span style="font-size:12px;color:var(--text-light)">${p.photos&&p.photos.length?p.photos.length+' photo'+(p.photos.length>1?'s':''):'Add photo'}</span></div>
+      <div class="photo-row">${photoThumbs}<label class="photo-add" for="global-file-input" onclick="setPhotoTarget(${i})">+</label><span style="font-size:12px;color:var(--text-light)">${p.photos&&p.photos.length?p.photos.length+' photo'+(p.photos.length>1?'s':''):'Add photo'}</span></div>
       <div class="adjust-row">
         <div class="adjust-label">
           <span>Schedule adjustment</span>
@@ -791,11 +791,9 @@ function clearAll(){if(confirm('Remove all plants?')){plants=[];save();renderPla
 function save(){localStorage.setItem('verdant_v3',JSON.stringify(plants));}
 
 let _photoTargetIdx = null;
-function triggerPhotoUpload(i) {
+function setPhotoTarget(i) {
   _photoTargetIdx = i;
-  const inp = document.getElementById('global-file-input');
-  inp.value = '';
-  inp.click();
+  document.getElementById('global-file-input').value = '';
 }
 function addPhoto(input){
   const f = input.files[0]; if(!f) return;
@@ -831,7 +829,7 @@ function updateCardPhotos(i) {
     ).join('');
     const countLabel = p.photos.length + ' photo' + (p.photos.length > 1 ? 's' : '');
     photoRow.innerHTML = thumbs +
-      '<button class="photo-add" onclick="triggerPhotoUpload(' + i + ')" type="button">+</button>' +
+      '<label class="photo-add" for="global-file-input" onclick="setPhotoTarget(' + i + ')">+</label>' +
       '<span style="font-size:12px;color:var(--text-light)">' + countLabel + '</span>';
   }
 }
