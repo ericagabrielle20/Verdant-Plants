@@ -189,6 +189,15 @@
             <option value="small">Could use upsizing</option>
           </select>
         </div>
+        <div class="form-group full">
+          <label class="form-label">Fertilizer type</label>
+          <select class="form-select" id="f-ferttype">
+            <option value="liquid">Liquid / water-soluble (every 2 weeks)</option>
+            <option value="concentrated">Concentrated liquid at full strength (monthly)</option>
+            <option value="slowrelease">Slow-release granules (every 3–6 months)</option>
+            <option value="none">Not fertilizing</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-section-label">Light conditions</div>
@@ -507,6 +516,8 @@ const POTSIZE_M = { snug:1.0, large:1.25, small:0.9 };
 const VENT_M    = { no:1.0, yes:0.85 };
 const ROOMHUM_M = { dry:0.9, average:1.0, humid:1.15 };
 const DROUGHT_M = { low:0.85, medium:1.0, high:1.2 };
+// fertilizer type overrides base feed weeks entirely
+const FERTTYPE_WKS = { liquid:2, concentrated:4, slowrelease:16, none:null };
 const LIGHTDOTS = { low:1, medium:2, bright:3, direct:4 };
 const DIRMAP    = { north:"N window", east:"E window", south:"S window", west:"W window" };
 
@@ -621,11 +632,13 @@ function calcWater(p) {
 }
 
 function calcFeed(p) {
-  const prof = p.profile || {};
-  const base = prof.feedWks || 5;
   const mult = SEASON_F[season];
-  if (!mult) return null;
-  return Math.max(1, Math.round(base * mult));
+  if (!mult) return null; // winter — no feeding
+  // fertilizer type drives the interval, not the plant database base
+  const fertWks = FERTTYPE_WKS[p.ferttype];
+  if (fertWks === null || fertWks === undefined) return null; // not fertilizing
+  // season still adjusts slightly (e.g. feed a bit less in fall)
+  return Math.max(1, Math.round(fertWks * mult));
 }
 
 function daysSince(ts) { return ts ? Math.round((Date.now()-ts)/86400000) : null; }
@@ -674,7 +687,7 @@ function renderPlants() {
         <div class="plant-emoji">${emoji}</div>
         <div class="plant-info">
           <div class="plant-name">${p.name}</div>
-          <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil</div>
+          <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil · ${({liquid:'liquid fert',concentrated:'concentrated fert',slowrelease:'slow-release fert',none:'no fert'})[p.ferttype]||'liquid fert'}</div>
         </div>
         <button class="plant-delete" onclick="deletePlant(${i})">×</button>
       </div>
@@ -757,10 +770,12 @@ function addPlant(){
     notes:document.getElementById('f-notes').value,
     lastWater:lw?new Date(lw).getTime():null,
     lastFeed:lf?new Date(lf).getTime():null,
+    ferttype:document.getElementById('f-ferttype').value,
     profile:selectedProfile,
     photos:[]
   });
   ['f-name','f-species','f-last-water','f-last-feed','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-ferttype').value='liquid';
   document.getElementById('species-box').classList.remove('visible');
   selectedProfile=null;
   save();showTab('plants');
