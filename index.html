@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verdant — Plant Care Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
   :root {
     --green-deep: #1a3a2a;
@@ -25,313 +25,117 @@
     --shadow: 0 2px 16px rgba(26,58,42,0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--sand);
-    color: var(--text-dark);
-    min-height: 100vh;
-  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(--text-dark); min-height: 100vh; }
 
-  /* Header */
-  .app-header {
-    background: var(--green-deep);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .app-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--green-pale);
-    letter-spacing: 0.02em;
-  }
+  .app-header { background: var(--green-deep); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .app-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--green-pale); letter-spacing: 0.02em; }
   .app-title span { color: var(--green-bright); font-style: italic; }
-  .season-chip {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 12px;
-    border-radius: 20px;
-    background: rgba(82,183,136,0.2);
-    color: var(--green-bright);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
+  .season-chip { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; background: rgba(82,183,136,0.2); color: var(--green-bright); letter-spacing: 0.04em; text-transform: uppercase; }
 
-  /* Weather bar */
-  .weather-bar {
-    background: var(--green-mid);
-    padding: 10px 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    color: rgba(216,243,220,0.85);
-  }
-  .weather-icon { font-size: 18px; }
-  .weather-loading { font-style: italic; opacity: 0.7; }
+  .weather-bar { background: var(--green-mid); padding: 10px 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 13px; color: rgba(216,243,220,0.85); }
 
-  /* Nav */
-  .nav {
-    display: flex;
-    background: white;
-    border-bottom: 1px solid var(--border);
-    padding: 0 1.5rem;
-    gap: 0;
-  }
-  .nav-btn {
-    padding: 14px 18px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    color: var(--text-light);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .nav-btn.active {
-    color: var(--green-mid);
-    border-bottom-color: var(--green-mid);
-  }
+  .nav { display: flex; background: white; border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
+  .nav-btn { padding: 14px 18px; background: none; border: none; border-bottom: 2px solid transparent; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--text-light); cursor: pointer; transition: all 0.2s; }
+  .nav-btn.active { color: var(--green-mid); border-bottom-color: var(--green-mid); }
 
-  /* Main */
   .main { padding: 1.25rem 1.5rem 5rem; max-width: 680px; margin: 0 auto; }
 
-  /* Plant cards */
   .plants-list { display: flex; flex-direction: column; gap: 14px; }
-  .plant-card {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    animation: fadeUp 0.3s ease both;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .plant-card-top {
-    padding: 1rem 1.25rem 0.75rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-  }
-  .plant-emoji {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--green-lightest);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
-    border: 1px solid var(--green-pale);
-  }
+  .plant-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; animation: fadeUp 0.3s ease both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  .plant-card-top { padding: 1rem 1.25rem 0.75rem; display: flex; align-items: flex-start; gap: 14px; }
+  .plant-emoji { width: 48px; height: 48px; border-radius: 12px; background: var(--green-lightest); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; border: 1px solid var(--green-pale); }
   .plant-info { flex: 1; }
   .plant-name { font-size: 16px; font-weight: 500; color: var(--text-dark); }
-  .plant-meta { font-size: 12px; color: var(--text-light); margin-top: 3px; }
-  .plant-delete {
-    background: none; border: none; cursor: pointer;
-    color: var(--text-light); font-size: 20px; line-height: 1;
-    padding: 2px 4px;
-    border-radius: 6px;
-    transition: all 0.15s;
-  }
+  .plant-meta { font-size: 12px; color: var(--text-light); margin-top: 3px; line-height: 1.5; }
+  .plant-delete { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 20px; line-height: 1; padding: 2px 4px; border-radius: 6px; transition: all 0.15s; }
   .plant-delete:hover { background: #fde8e8; color: #c0392b; }
 
-  /* Light indicator */
-  .light-row {
-    display: flex; align-items: center; gap: 6px;
-    padding: 0 1.25rem 0.75rem;
-  }
-  .light-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--green-pale);
-    border: 1px solid rgba(45,106,79,0.2);
-  }
+  .ai-profile { margin: 0 1.25rem 0.75rem; padding: 10px 12px; background: var(--green-lightest); border-radius: 8px; border: 1px solid var(--green-pale); font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+  .ai-profile-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green-mid); margin-bottom: 4px; }
+
+  .light-row { display: flex; align-items: center; gap: 6px; padding: 0 1.25rem 0.75rem; flex-wrap: wrap; gap: 6px; }
+  .light-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-pale); border: 1px solid rgba(45,106,79,0.2); }
   .light-dot.on { background: #f4d03f; border-color: #d4ac0d; }
   .light-text { font-size: 12px; color: var(--text-light); margin-left: 2px; }
-  .window-dir {
-    margin-left: auto;
-    font-size: 11px;
-    background: var(--green-lightest);
-    color: var(--green-mid);
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
+  .tag { font-size: 11px; background: var(--green-lightest); color: var(--green-mid); padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .tag-warn { background: var(--amber-pale); color: var(--amber); }
 
-  /* Care rows */
   .care-section { border-top: 1px solid var(--border); }
-  .care-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 1.25rem;
-    border-bottom: 1px solid var(--border);
-  }
+  .care-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 1.25rem; border-bottom: 1px solid var(--border); }
   .care-row:last-child { border-bottom: none; }
   .care-left { flex: 1; }
-  .care-type {
-    font-size: 12px; font-weight: 500; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--text-light); margin-bottom: 2px;
-  }
+  .care-type { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-light); margin-bottom: 2px; }
   .care-schedule { font-size: 14px; color: var(--text-dark); font-weight: 500; }
   .care-last { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-  .status-badge {
-    font-size: 12px; font-weight: 500;
-    padding: 4px 12px; border-radius: 20px;
-    white-space: nowrap; margin: 0 10px;
-  }
+  .status-badge { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; white-space: nowrap; margin: 0 10px; }
   .s-overdue { background: #fdecea; color: #c0392b; }
   .s-soon { background: var(--amber-pale); color: var(--amber); }
   .s-ok { background: var(--green-pale); color: var(--green-mid); }
   .s-dormant { background: var(--blue-pale); color: var(--blue); }
   .s-new { background: #f0f0f0; color: #888; }
 
-  .log-btn {
-    background: none; border: 1px solid var(--border);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px; color: var(--text-mid);
-    padding: 5px 10px; border-radius: 8px; cursor: pointer;
-    transition: all 0.15s; white-space: nowrap;
-  }
+  .log-btn { background: none; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text-mid); padding: 5px 10px; border-radius: 8px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .log-btn:hover { background: var(--green-lightest); border-color: var(--green-bright); color: var(--green-mid); }
-  .log-btn:active { transform: scale(0.97); }
 
-  /* Photo row */
-  .photo-row {
-    display: flex; gap: 8px; padding: 10px 1.25rem;
-    align-items: center; border-top: 1px solid var(--border);
-  }
-  .photo-thumb {
-    width: 44px; height: 44px; border-radius: 8px;
-    object-fit: cover; border: 1px solid var(--border);
-  }
-  .photo-add {
-    width: 44px; height: 44px; border-radius: 8px;
-    border: 1.5px dashed var(--border);
-    background: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: var(--text-light);
-    transition: all 0.15s;
-  }
+  .photo-row { display: flex; gap: 8px; padding: 10px 1.25rem; align-items: center; border-top: 1px solid var(--border); }
+  .photo-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
+  .photo-add { width: 44px; height: 44px; border-radius: 8px; border: 1.5px dashed var(--border); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-light); transition: all 0.15s; }
   .photo-add:hover { border-color: var(--green-bright); color: var(--green-mid); background: var(--green-lightest); }
-  .photo-label { font-size: 12px; color: var(--text-light); }
   input[type=file] { display: none; }
 
-  /* Notes */
-  .notes-row {
-    padding: 8px 1.25rem 12px;
-    border-top: 1px solid var(--border);
-  }
-  .notes-input {
-    width: 100%; font-family: 'DM Sans', sans-serif;
-    font-size: 13px; color: var(--text-dark);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 7px 10px; resize: none;
-    background: var(--green-lightest);
-    transition: border 0.2s;
-  }
+  .notes-row { padding: 8px 1.25rem 12px; border-top: 1px solid var(--border); }
+  .notes-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-dark); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; resize: none; background: var(--green-lightest); transition: border 0.2s; }
   .notes-input:focus { outline: none; border-color: var(--green-bright); }
 
-  /* Empty state */
-  .empty-state {
-    text-align: center; padding: 4rem 1rem;
-    color: var(--text-light);
-  }
+  .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-light); }
   .empty-icon { font-size: 56px; margin-bottom: 16px; }
   .empty-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-mid); margin-bottom: 8px; }
   .empty-sub { font-size: 14px; line-height: 1.6; max-width: 260px; margin: 0 auto 20px; }
-  .empty-btn {
-    background: var(--green-mid); color: white;
-    border: none; padding: 10px 24px; border-radius: 10px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: background 0.2s;
-  }
-  .empty-btn:hover { background: var(--green-deep); }
+  .empty-btn { background: var(--green-mid); color: white; border: none; padding: 10px 24px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; }
 
-  /* Add form */
-  .add-form {
-    background: white; border-radius: var(--radius);
-    box-shadow: var(--shadow); padding: 1.5rem;
-  }
-  .form-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px; margin-bottom: 1.25rem; color: var(--green-deep);
-  }
-  .form-section-label {
-    font-size: 11px; font-weight: 500; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--text-light);
-    margin: 1.25rem 0 0.6rem;
-  }
+  .add-form { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; }
+  .form-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 1.25rem; color: var(--green-deep); }
+  .form-section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-light); margin: 1.25rem 0 0.6rem; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group { display: flex; flex-direction: column; gap: 5px; }
   .form-group.full { grid-column: 1 / -1; }
   .form-label { font-size: 12px; font-weight: 500; color: var(--text-mid); }
-  .form-input, .form-select, .form-textarea {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    background: var(--sand);
-    color: var(--text-dark);
-    transition: border 0.2s;
-    width: 100%;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    outline: none; border-color: var(--green-bright);
-    background: white;
-  }
+  .form-label small { font-weight: 400; color: var(--text-light); }
+  .form-input, .form-select, .form-textarea { font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; background: var(--sand); color: var(--text-dark); transition: border 0.2s; width: 100%; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--green-bright); background: white; }
   .form-textarea { resize: vertical; min-height: 60px; }
   .form-help { font-size: 11px; color: var(--text-light); margin-top: 2px; }
-  .submit-btn {
-    width: 100%; padding: 12px;
-    background: var(--green-deep); color: white;
-    border: none; border-radius: 10px;
-    font-family: 'DM Serif Display', serif;
-    font-size: 16px; letter-spacing: 0.02em;
-    cursor: pointer; margin-top: 1.25rem;
-    transition: background 0.2s;
-  }
-  .submit-btn:hover { background: var(--green-mid); }
 
-  /* Settings */
-  .settings-card {
-    background: white; border-radius: var(--radius);
-    box-shadow: var(--shadow); padding: 1.5rem;
-    margin-bottom: 14px;
-  }
-  .settings-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 18px; color: var(--green-deep); margin-bottom: 1rem;
-  }
-  .setting-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-  }
+  .ai-lookup-box { grid-column: 1 / -1; background: var(--green-lightest); border: 1px solid var(--green-pale); border-radius: 10px; padding: 12px; margin-top: 4px; font-size: 13px; color: var(--text-mid); line-height: 1.6; display: none; }
+  .ai-lookup-box.visible { display: block; }
+  .ai-lookup-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green-mid); margin-bottom: 6px; }
+  .ai-loading { color: var(--text-light); font-style: italic; }
+
+  .submit-btn { width: 100%; padding: 12px; background: var(--green-deep); color: white; border: none; border-radius: 10px; font-family: 'DM Serif Display', serif; font-size: 16px; letter-spacing: 0.02em; cursor: pointer; margin-top: 1.25rem; transition: background 0.2s; }
+  .submit-btn:hover { background: var(--green-mid); }
+  .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .settings-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 14px; }
+  .settings-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--green-deep); margin-bottom: 1rem; }
+  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .setting-row:last-child { border-bottom: none; }
   .setting-label { font-size: 14px; color: var(--text-dark); }
   .setting-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
   .setting-value { font-size: 14px; font-weight: 500; color: var(--green-mid); }
-
   .zip-form { display: flex; gap: 8px; margin-top: 8px; }
-  .zip-input {
-    flex: 1; font-family: 'DM Sans', sans-serif;
-    font-size: 14px; border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 12px;
-    background: var(--sand);
-  }
+  .zip-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; background: var(--sand); }
   .zip-input:focus { outline: none; border-color: var(--green-bright); }
-  .zip-btn {
-    background: var(--green-mid); color: white;
-    border: none; border-radius: 8px; padding: 8px 14px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px;
-    cursor: pointer;
-  }
+  .zip-btn { background: var(--green-mid); color: white; border: none; border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+  .toggle { position: relative; width: 44px; height: 24px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; cursor: pointer; transition: 0.3s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+  input:checked + .toggle-slider { background: var(--green-mid); }
+  input:checked + .toggle-slider:before { transform: translateX(20px); }
 
   @media (max-width: 480px) {
     .form-grid { grid-template-columns: 1fr; }
@@ -346,11 +150,9 @@
   <div class="app-title"><span>Verdant</span></div>
   <div id="season-chip" class="season-chip">Loading...</div>
 </div>
-
 <div id="weather-bar" class="weather-bar">
-  <span class="weather-loading">Fetching conditions for your area...</span>
+  <span style="font-style:italic;opacity:0.7">Add your ZIP in Settings for local conditions</span>
 </div>
-
 <nav class="nav">
   <button class="nav-btn active" onclick="showTab('plants')">My Plants</button>
   <button class="nav-btn" onclick="showTab('add')">+ Add Plant</button>
@@ -358,47 +160,69 @@
 </nav>
 
 <div class="main">
-  <!-- Plants tab -->
+
+  <!-- PLANTS TAB -->
   <div id="tab-plants">
     <div id="plants-list" class="plants-list"></div>
   </div>
 
-  <!-- Add tab -->
+  <!-- ADD TAB -->
   <div id="tab-add" style="display:none">
     <div class="add-form">
       <div class="form-title">Add a new plant</div>
 
-      <div class="form-section-label">Identity</div>
+      <div class="form-section-label">Plant identity</div>
       <div class="form-grid">
         <div class="form-group full">
-          <label class="form-label">Nickname or name</label>
-          <input type="text" class="form-input" id="f-name" placeholder="e.g. Kitchen Pothos">
+          <label class="form-label">Your nickname for this plant</label>
+          <input type="text" class="form-input" id="f-name" placeholder="e.g. Bedroom Monstera">
         </div>
-        <div class="form-group">
-          <label class="form-label">Plant type</label>
-          <select class="form-select" id="f-type">
-            <option value="">— select —</option>
-            <option value="pothos">Pothos</option>
-            <option value="snake">Snake plant</option>
-            <option value="zz">ZZ plant</option>
-            <option value="peace-lily">Peace lily</option>
-            <option value="spider">Spider plant</option>
-            <option value="monstera">Monstera</option>
-            <option value="fiddle-leaf">Fiddle leaf fig</option>
-            <option value="succulent">Succulent / cactus</option>
-            <option value="philodendron">Philodendron</option>
-            <option value="fern">Fern</option>
-            <option value="aloe">Aloe vera</option>
-            <option value="orchid">Orchid</option>
-            <option value="other">Other</option>
-          </select>
+        <div class="form-group full">
+          <label class="form-label">Plant species or type <small>— be as specific as you know</small></label>
+          <input type="text" class="form-input" id="f-species" placeholder="e.g. Calathea Orbifolia, Golden Pothos, Bird of Paradise..."
+            oninput="scheduleAILookup()" autocomplete="off">
+          <div class="form-help">Type any plant — the app will look up its specific care needs</div>
         </div>
+        <div class="ai-lookup-box" id="ai-box">
+          <div class="ai-lookup-label">AI plant profile</div>
+          <div id="ai-content" class="ai-loading">Looking up care profile...</div>
+        </div>
+      </div>
+
+      <div class="form-section-label">Pot & soil</div>
+      <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Pot material</label>
           <select class="form-select" id="f-pot">
             <option value="terracotta">Terracotta (dries faster)</option>
             <option value="plastic">Plastic (retains moisture)</option>
             <option value="ceramic">Ceramic / glazed</option>
+            <option value="fabric">Fabric / grow bag</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Drainage holes?</label>
+          <select class="form-select" id="f-drain">
+            <option value="yes">Yes — has drainage holes</option>
+            <option value="no">No — no drainage holes</option>
+            <option value="tray">Yes, but sits in tray</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Soil type</label>
+          <select class="form-select" id="f-soil">
+            <option value="standard">Standard potting mix</option>
+            <option value="well-draining">Well-draining / perlite mix</option>
+            <option value="moisture-retaining">Moisture-retaining mix</option>
+            <option value="succulent">Succulent / cactus mix</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pot size vs. plant</label>
+          <select class="form-select" id="f-potsize">
+            <option value="snug">Snug fit (just right)</option>
+            <option value="large">Oversized pot</option>
+            <option value="small">Could use upsizing</option>
           </select>
         </div>
       </div>
@@ -434,15 +258,21 @@
         </div>
       </div>
 
-      <div class="form-section-label">Soil & environment</div>
+      <div class="form-section-label">Room environment</div>
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label">Soil type</label>
-          <select class="form-select" id="f-soil">
-            <option value="standard">Standard potting mix</option>
-            <option value="well-draining">Well-draining / perlite mix</option>
-            <option value="moisture-retaining">Moisture-retaining mix</option>
-            <option value="succulent">Succulent / cactus mix</option>
+          <label class="form-label">Room humidity</label>
+          <select class="form-select" id="f-roomhum">
+            <option value="dry">Dry (bedroom, living room)</option>
+            <option value="average" selected>Average</option>
+            <option value="humid">Humid (bathroom, kitchen)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Near heating / AC vent?</label>
+          <select class="form-select" id="f-vent">
+            <option value="no" selected>No</option>
+            <option value="yes">Yes — near a vent</option>
           </select>
         </div>
         <div class="form-group">
@@ -453,9 +283,17 @@
             <option value="large">Large / mature</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">Current soil moisture</label>
+          <select class="form-select" id="f-moisture">
+            <option value="dry">Dry — needs water now</option>
+            <option value="moist" selected>Moist — recently watered</option>
+            <option value="wet">Wet — just watered today</option>
+          </select>
+        </div>
       </div>
 
-      <div class="form-section-label">Care history — when did you last...</div>
+      <div class="form-section-label">Care history</div>
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Last watered</label>
@@ -469,23 +307,23 @@
         </div>
       </div>
 
-      <div class="form-section-label">Optional notes</div>
+      <div class="form-section-label">Notes</div>
       <div class="form-group">
-        <textarea class="form-textarea" id="f-notes" placeholder="e.g. Tends to droop before it needs water, recently had pest issues..."></textarea>
+        <textarea class="form-textarea" id="f-notes" placeholder="Quirks, pest history, anything worth remembering..."></textarea>
       </div>
 
-      <button class="submit-btn" onclick="addPlant()">Save plant</button>
+      <button class="submit-btn" id="submit-btn" onclick="addPlant()">Save plant</button>
     </div>
   </div>
 
-  <!-- Settings tab -->
+  <!-- SETTINGS TAB -->
   <div id="tab-settings" style="display:none">
     <div class="settings-card">
       <div class="settings-title">Location & weather</div>
       <div class="setting-row">
         <div>
           <div class="setting-label">ZIP code</div>
-          <div class="setting-sub">Used to pull local humidity and season</div>
+          <div class="setting-sub">Used to pull local humidity and temperature</div>
         </div>
         <div class="setting-value" id="zip-display">Not set</div>
       </div>
@@ -495,23 +333,12 @@
       </div>
       <div id="zip-weather-result" style="margin-top:10px;font-size:13px;color:var(--text-mid)"></div>
     </div>
-
     <div class="settings-card">
       <div class="settings-title">Current conditions</div>
-      <div class="setting-row">
-        <div><div class="setting-label">Season</div></div>
-        <div class="setting-value" id="s-season">—</div>
-      </div>
-      <div class="setting-row">
-        <div><div class="setting-label">Humidity</div><div class="setting-sub">Affects watering frequency</div></div>
-        <div class="setting-value" id="s-humidity">—</div>
-      </div>
-      <div class="setting-row">
-        <div><div class="setting-label">Temperature</div></div>
-        <div class="setting-value" id="s-temp">—</div>
-      </div>
+      <div class="setting-row"><div><div class="setting-label">Season</div></div><div class="setting-value" id="s-season">—</div></div>
+      <div class="setting-row"><div><div class="setting-label">Humidity</div><div class="setting-sub">From local weather</div></div><div class="setting-value" id="s-humidity">—</div></div>
+      <div class="setting-row"><div><div class="setting-label">Temperature</div></div><div class="setting-value" id="s-temp">—</div></div>
     </div>
-
     <div class="settings-card">
       <div class="settings-title">Data</div>
       <div class="setting-row">
@@ -520,46 +347,35 @@
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
-// ── Plant database ──────────────────────────────────────────────────────
-const PLANTS = {
-  pothos:       { emoji:'🌿', name:'Pothos',            baseWater:7,  feedWks:4,  drought:'medium' },
-  snake:        { emoji:'🌵', name:'Snake plant',        baseWater:14, feedWks:8,  drought:'high'   },
-  zz:           { emoji:'🌱', name:'ZZ plant',           baseWater:14, feedWks:8,  drought:'high'   },
-  'peace-lily': { emoji:'🌸', name:'Peace lily',         baseWater:7,  feedWks:4,  drought:'low'    },
-  spider:       { emoji:'🕸', name:'Spider plant',       baseWater:7,  feedWks:4,  drought:'medium' },
-  monstera:     { emoji:'🌿', name:'Monstera',           baseWater:10, feedWks:4,  drought:'medium' },
-  'fiddle-leaf':{ emoji:'🍃', name:'Fiddle leaf fig',    baseWater:7,  feedWks:3,  drought:'low'    },
-  succulent:    { emoji:'🌵', name:'Succulent / cactus', baseWater:21, feedWks:12, drought:'high'   },
-  philodendron: { emoji:'🌿', name:'Philodendron',       baseWater:7,  feedWks:4,  drought:'medium' },
-  fern:         { emoji:'🌿', name:'Fern',               baseWater:4,  feedWks:4,  drought:'low'    },
-  aloe:         { emoji:'🌵', name:'Aloe vera',          baseWater:14, feedWks:8,  drought:'high'   },
-  orchid:       { emoji:'🌸', name:'Orchid',             baseWater:10, feedWks:8,  drought:'medium' },
-  other:        { emoji:'🪴', name:'Plant',              baseWater:10, feedWks:6,  drought:'medium' }
-};
-
-// Multipliers
-const DROUGHT  = { low:0.85, medium:1.0, high:1.2 };
-const SEASON_W = { spring:1.1, summer:1.25, fall:0.9, winter:0.75 };
-const SEASON_F = { spring:1.0, summer:0.85, fall:1.2, winter:null };
-const LIGHT_M  = { low:0.75, medium:1.0, bright:1.15, direct:1.3 };
-const DIST_M   = { 'very-close':1.2, close:1.1, medium:1.0, far:0.85 };
-const POT_M    = { terracotta:0.85, plastic:1.2, ceramic:1.0 };
-const SOIL_M   = { standard:1.0, 'well-draining':0.85, 'moisture-retaining':1.2, succulent:0.75 };
-const AGE_M    = { young:1.15, established:1.0, large:0.9 };
-const DIRMAP   = { north:'N — low light', east:'E — morning sun', south:'S — bright', west:'W — afternoon sun' };
-const LIGHTDOTS= { low:1, medium:2, bright:3, direct:4 };
+// ── Multipliers ─────────────────────────────────────────────────────────
+const SEASON_W  = { spring:1.1, summer:1.25, fall:0.9, winter:0.75 };
+const SEASON_F  = { spring:1.0, summer:0.85, fall:1.2, winter:null };
+const LIGHT_M   = { low:0.75, medium:1.0, bright:1.15, direct:1.3 };
+const DIST_M    = { 'very-close':1.2, close:1.1, medium:1.0, far:0.85 };
+const POT_M     = { terracotta:0.85, plastic:1.2, ceramic:1.0, fabric:0.8 };
+const SOIL_M    = { standard:1.0, 'well-draining':0.85, 'moisture-retaining':1.2, succulent:0.75 };
+const AGE_M     = { young:1.15, established:1.0, large:0.9 };
+const DRAIN_M   = { yes:1.0, no:1.4, tray:1.15 }; // no drainage = water much less often
+const POTSIZE_M = { snug:1.0, large:1.25, small:0.9 };
+const VENT_M    = { no:1.0, yes:0.85 }; // vent dries soil faster
+const ROOMHUM_M = { dry:0.9, average:1.0, humid:1.15 };
+const DIRMAP    = { north:'N window', east:'E window', south:'S window', west:'W window' };
+const LIGHTDOTS = { low:1, medium:2, bright:3, direct:4 };
 
 // State
-let plants = JSON.parse(localStorage.getItem('verdant_plants') || '[]');
+let plants = JSON.parse(localStorage.getItem('verdant_plants2') || '[]');
 let weather = JSON.parse(localStorage.getItem('verdant_weather') || 'null');
-let zip = localStorage.getItem('verdant_zip') || '';
 let season = getSeason();
 let humidity = weather ? weather.humidity : 50;
 
-// ── Season ──────────────────────────────────────────────────────────────
+// AI lookup debounce
+let aiTimer = null;
+let currentAIProfile = null;
+
 function getSeason() {
   const m = new Date().getMonth();
   if (m >= 2 && m <= 4) return 'spring';
@@ -568,28 +384,92 @@ function getSeason() {
   return 'winter';
 }
 
+// ── AI plant lookup ─────────────────────────────────────────────────────
+function scheduleAILookup() {
+  clearTimeout(aiTimer);
+  const species = document.getElementById('f-species').value.trim();
+  if (species.length < 3) {
+    document.getElementById('ai-box').classList.remove('visible');
+    currentAIProfile = null;
+    return;
+  }
+  aiTimer = setTimeout(() => doAILookup(species), 800);
+}
+
+async function doAILookup(species) {
+  const box = document.getElementById('ai-box');
+  const content = document.getElementById('ai-content');
+  box.classList.add('visible');
+  content.innerHTML = '<span class="ai-loading">Looking up ' + species + '...</span>';
+  currentAIProfile = null;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a plant care expert. When given a plant name, return ONLY a JSON object with these exact keys:
+{
+  "emoji": "single most fitting emoji for this plant",
+  "commonName": "common name",
+  "baseWaterDays": number (typical days between watering for established plant, average conditions),
+  "baseFeedWeeks": number (weeks between fertilizing during growing season),
+  "droughtTolerance": "low" | "medium" | "high",
+  "summary": "2 sentences max: key care personality and one important watch-out",
+  "waterTip": "one specific watering tip for this species",
+  "feedTip": "one specific fertilizing tip for this species"
+}
+Return ONLY the JSON, no markdown, no explanation.`,
+        messages: [{ role: 'user', content: species }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content[0].text.trim();
+    const profile = JSON.parse(text);
+    currentAIProfile = profile;
+    content.innerHTML = `
+      <strong>${profile.emoji} ${profile.commonName}</strong><br>
+      ${profile.summary}<br><br>
+      <strong>Watering:</strong> ${profile.waterTip}<br>
+      <strong>Feeding:</strong> ${profile.feedTip}
+    `;
+  } catch(e) {
+    content.innerHTML = '<span style="color:var(--amber)">Could not load profile — plant will use general defaults.</span>';
+    currentAIProfile = null;
+  }
+}
+
 // ── Schedule calculation ────────────────────────────────────────────────
 function calcWater(p) {
-  const d = PLANTS[p.type] || PLANTS.other;
-  let days = d.baseWater;
-  days *= SEASON_W[season];
-  days *= DROUGHT[d.drought];
+  const baseWater = p.aiProfile ? p.aiProfile.baseWaterDays : 10;
+  const droughtTol = p.aiProfile ? p.aiProfile.droughtTolerance : 'medium';
+  const DROUGHT = { low:0.85, medium:1.0, high:1.2 };
+
+  let days = baseWater;
+  days *= SEASON_W[season] || 1;
+  days *= DROUGHT[droughtTol] || 1;
   days *= LIGHT_M[p.light] || 1;
   days *= DIST_M[p.dist] || 1;
   days *= POT_M[p.pot] || 1;
   days *= SOIL_M[p.soil] || 1;
   days *= AGE_M[p.age] || 1;
-  // humidity: higher humidity = less watering needed
-  const humFactor = 1 + (50 - humidity) / 150;
+  days *= DRAIN_M[p.drain] || 1;
+  days *= POTSIZE_M[p.potsize] || 1;
+  days *= VENT_M[p.vent] || 1;
+  days *= ROOMHUM_M[p.roomhum] || 1;
+  // outdoor humidity from weather
+  const humFactor = 1 + (50 - humidity) / 200;
   days *= humFactor;
   return Math.max(1, Math.round(days));
 }
 
 function calcFeed(p) {
-  const d = PLANTS[p.type] || PLANTS.other;
+  const baseFeed = p.aiProfile ? p.aiProfile.baseFeedWeeks : 4;
   const mult = SEASON_F[season];
   if (!mult) return null;
-  return Math.max(1, Math.round(d.feedWks * mult));
+  return Math.max(1, Math.round(baseFeed * mult));
 }
 
 // ── Status helpers ──────────────────────────────────────────────────────
@@ -617,44 +497,47 @@ function renderPlants() {
     el.innerHTML = `<div class="empty-state">
       <div class="empty-icon">🌱</div>
       <div class="empty-title">No plants yet</div>
-      <div class="empty-sub">Add your first plant to start getting personalized care schedules.</div>
+      <div class="empty-sub">Add your first plant to get a personalized care schedule.</div>
       <button class="empty-btn" onclick="showTab('add')">Add a plant</button>
     </div>`;
     return;
   }
 
   el.innerHTML = plants.map((p, i) => {
-    const d = PLANTS[p.type] || PLANTS.other;
+    const profile = p.aiProfile;
+    const emoji = profile ? profile.emoji : '🪴';
     const waterDays = calcWater(p);
     const feedWks = calcFeed(p);
     const wStatus = getStatus(p.lastWater, waterDays);
-    const fStatus = feedWks ? getStatus(p.lastFeed, feedWks * 7) : { text:'Dormant in winter', cls:'s-dormant' };
+    const fStatus = feedWks ? getStatus(p.lastFeed, feedWks * 7) : { text:'Dormant — skip', cls:'s-dormant' };
     const dots = LIGHTDOTS[p.light] || 2;
     const lightPips = [1,2,3,4].map(n => `<div class="light-dot ${n<=dots?'on':''}"></div>`).join('');
-    const photos = (p.photos || []).map(src =>
-      `<img class="photo-thumb" src="${src}" alt="plant photo">`).join('');
+    const drainWarn = p.drain === 'no' ? `<span class="tag tag-warn">No drainage</span>` : '';
+    const ventWarn = p.vent === 'yes' ? `<span class="tag tag-warn">Near vent</span>` : '';
+    const photos = (p.photos||[]).map(src => `<img class="photo-thumb" src="${src}">`).join('');
 
     return `<div class="plant-card" style="animation-delay:${i*0.05}s">
       <div class="plant-card-top">
-        <div class="plant-emoji">${d.emoji}</div>
+        <div class="plant-emoji">${emoji}</div>
         <div class="plant-info">
           <div class="plant-name">${p.name}</div>
-          <div class="plant-meta">${d.name} · ${p.pot} pot · ${p.soil || 'standard'} soil</div>
+          <div class="plant-meta">${p.species} · ${p.pot} pot · ${p.soil} soil</div>
         </div>
-        <button class="plant-delete" onclick="deletePlant(${i})" title="Remove">×</button>
+        <button class="plant-delete" onclick="deletePlant(${i})">×</button>
       </div>
+      ${profile ? `<div class="ai-profile"><div class="ai-profile-label">Care profile</div>${profile.summary}</div>` : ''}
       <div class="light-row">
         ${lightPips}
         <span class="light-text">${p.light} light</span>
-        <span class="window-dir">${DIRMAP[p.dir] || p.dir}</span>
+        <span class="tag">${DIRMAP[p.dir]||p.dir}</span>
+        ${drainWarn}${ventWarn}
       </div>
-
       <div class="care-section">
         <div class="care-row">
           <div class="care-left">
             <div class="care-type">Watering</div>
             <div class="care-schedule">Every ~${waterDays} days</div>
-            <div class="care-last">${fmtLast(p.lastWater, 'Last watered')}</div>
+            <div class="care-last">${fmtLast(p.lastWater,'Last watered')}</div>
           </div>
           <span class="status-badge ${wStatus.cls}">${wStatus.text}</span>
           <button class="log-btn" onclick="logWater(${i})">Watered ✓</button>
@@ -662,27 +545,20 @@ function renderPlants() {
         <div class="care-row">
           <div class="care-left">
             <div class="care-type">Fertilizing</div>
-            <div class="care-schedule">${feedWks ? 'Every ~' + feedWks + ' weeks' : 'Dormant — skip feeding'}</div>
-            <div class="care-last">${fmtLast(p.lastFeed, 'Last fed')}</div>
+            <div class="care-schedule">${feedWks ? 'Every ~'+feedWks+' weeks' : 'Dormant — skip feeding'}</div>
+            <div class="care-last">${fmtLast(p.lastFeed,'Last fed')}</div>
           </div>
           <span class="status-badge ${fStatus.cls}">${fStatus.text}</span>
           ${feedWks ? `<button class="log-btn" onclick="logFeed(${i})">Fed ✓</button>` : '<span></span>'}
         </div>
       </div>
-
       <div class="photo-row">
         ${photos}
-        <label class="photo-add" title="Add photo">
-          +
-          <input type="file" accept="image/*" onchange="addPhoto(${i}, this)">
-        </label>
-        <span class="photo-label">Add a photo</span>
+        <label class="photo-add" title="Add photo">+<input type="file" accept="image/*" onchange="addPhoto(${i},this)"></label>
+        <span style="font-size:12px;color:var(--text-light)">Add photo</span>
       </div>
-
       <div class="notes-row">
-        <textarea class="notes-input" rows="2"
-          placeholder="Notes about this plant..."
-          onblur="saveNote(${i}, this.value)">${p.notes || ''}</textarea>
+        <textarea class="notes-input" rows="2" placeholder="Notes..." onblur="saveNote(${i},this.value)">${p.notes||''}</textarea>
       </div>
     </div>`;
   }).join('');
@@ -691,131 +567,95 @@ function renderPlants() {
 // ── Actions ─────────────────────────────────────────────────────────────
 function logWater(i) { plants[i].lastWater = Date.now(); save(); renderPlants(); }
 function logFeed(i)  { plants[i].lastFeed  = Date.now(); save(); renderPlants(); }
-function deletePlant(i) {
-  if (confirm(`Remove "${plants[i].name}"?`)) {
-    plants.splice(i, 1); save(); renderPlants();
-  }
-}
-function saveNote(i, val) { plants[i].notes = val; save(); }
+function deletePlant(i) { if(confirm(`Remove "${plants[i].name}"?`)) { plants.splice(i,1); save(); renderPlants(); } }
+function saveNote(i,v) { plants[i].notes = v; save(); }
+function clearAll() { if(confirm('Remove all plants?')) { plants=[]; save(); renderPlants(); } }
+function save() { localStorage.setItem('verdant_plants2', JSON.stringify(plants)); }
 
 function addPhoto(i, input) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if(!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
-    if (!plants[i].photos) plants[i].photos = [];
-    plants[i].photos.push(e.target.result);
-    save(); renderPlants();
-  };
+  reader.onload = e => { if(!plants[i].photos) plants[i].photos=[]; plants[i].photos.push(e.target.result); save(); renderPlants(); };
   reader.readAsDataURL(file);
 }
 
 function addPlant() {
   const name = document.getElementById('f-name').value.trim();
-  const type = document.getElementById('f-type').value;
-  if (!name) { alert('Please enter a plant name.'); return; }
-  if (!type) { alert('Please select a plant type.'); return; }
+  const species = document.getElementById('f-species').value.trim();
+  if (!name) { alert('Please enter a nickname for this plant.'); return; }
+  if (!species) { alert('Please enter the plant species or type.'); return; }
 
   const lwVal = document.getElementById('f-last-water').value;
   const lfVal = document.getElementById('f-last-feed').value;
 
   plants.push({
-    name,
-    type,
-    pot:   document.getElementById('f-pot').value,
-    dir:   document.getElementById('f-dir').value,
-    light: document.getElementById('f-light').value,
-    dist:  document.getElementById('f-dist').value,
-    soil:  document.getElementById('f-soil').value,
-    age:   document.getElementById('f-age').value,
-    notes: document.getElementById('f-notes').value,
+    name, species,
+    pot:     document.getElementById('f-pot').value,
+    drain:   document.getElementById('f-drain').value,
+    soil:    document.getElementById('f-soil').value,
+    potsize: document.getElementById('f-potsize').value,
+    dir:     document.getElementById('f-dir').value,
+    light:   document.getElementById('f-light').value,
+    dist:    document.getElementById('f-dist').value,
+    roomhum: document.getElementById('f-roomhum').value,
+    vent:    document.getElementById('f-vent').value,
+    age:     document.getElementById('f-age').value,
+    moisture:document.getElementById('f-moisture').value,
+    notes:   document.getElementById('f-notes').value,
     lastWater: lwVal ? new Date(lwVal).getTime() : null,
     lastFeed:  lfVal ? new Date(lfVal).getTime() : null,
+    aiProfile: currentAIProfile,
     photos: []
   });
 
-  // Reset form
-  ['f-name','f-last-water','f-last-feed','f-notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-type').value = '';
-
+  ['f-name','f-species','f-last-water','f-last-feed','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ai-box').classList.remove('visible');
+  currentAIProfile = null;
   save();
   showTab('plants');
 }
 
-function clearAll() {
-  if (confirm('Remove all plants? This cannot be undone.')) {
-    plants = []; save(); renderPlants();
-  }
-}
-
-function save() { localStorage.setItem('verdant_plants', JSON.stringify(plants)); }
-
 // ── Weather ──────────────────────────────────────────────────────────────
 async function fetchWeather(zipCode) {
   try {
-    // Use Open-Meteo geocoding + weather (free, no API key)
-    const geoResp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${zipCode}&count=1&language=en&format=json`);
-    const geo = await geoResp.json();
-    if (!geo.results || !geo.results.length) return null;
-    const { latitude, longitude, name } = geo.results[0];
-
-    const wResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit&timezone=auto`);
-    const w = await wResp.json();
-    const c = w.current;
-    return {
-      city: name,
-      temp: Math.round(c.temperature_2m),
-      humidity: c.relative_humidity_2m,
-      code: c.weather_code
-    };
+    const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${zipCode}&count=1&language=en&format=json`);
+    const gd = await geo.json();
+    if (!gd.results?.length) return null;
+    const { latitude, longitude, name } = gd.results[0];
+    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit&timezone=auto`);
+    const wd = await w.json();
+    const c = wd.current;
+    return { city:name, temp:Math.round(c.temperature_2m), humidity:c.relative_humidity_2m, code:c.weather_code };
   } catch(e) { return null; }
 }
 
 function weatherEmoji(code) {
-  if (code === 0) return '☀️';
-  if (code <= 3) return '⛅';
-  if (code <= 67) return '🌧️';
-  if (code <= 77) return '❄️';
-  if (code <= 82) return '🌦️';
-  return '⛈️';
+  if (code===0) return '☀️';
+  if (code<=3) return '⛅';
+  if (code<=67) return '🌧️';
+  if (code<=77) return '❄️';
+  return '🌦️';
 }
 
 async function loadWeather() {
   const bar = document.getElementById('weather-bar');
-  const savedZip = localStorage.getItem('verdant_zip') || '';
-  if (!savedZip) {
-    bar.innerHTML = `<span class="weather-loading">Add your ZIP code in Settings to get local conditions.</span>`;
-    updateSeasonChip();
-    return;
-  }
-  bar.innerHTML = `<span class="weather-loading">Fetching local conditions...</span>`;
-  const w = await fetchWeather(savedZip);
+  const z = localStorage.getItem('verdant_zip') || '';
+  if (!z) return;
+  bar.innerHTML = '<span style="font-style:italic;opacity:0.7">Fetching local conditions...</span>';
+  const w = await fetchWeather(z);
   if (w) {
-    weather = w;
-    humidity = w.humidity;
+    weather = w; humidity = w.humidity;
     localStorage.setItem('verdant_weather', JSON.stringify(w));
-    bar.innerHTML = `<span class="weather-icon">${weatherEmoji(w.code)}</span>
-      <span>${w.city}: <strong>${w.temp}°F</strong> · Humidity <strong>${w.humidity}%</strong></span>`;
+    bar.innerHTML = `<span>${weatherEmoji(w.code)} ${w.city}: <strong>${w.temp}°F</strong> · Humidity <strong>${w.humidity}%</strong></span>`;
     document.getElementById('s-humidity').textContent = w.humidity + '%';
     document.getElementById('s-temp').textContent = w.temp + '°F';
-  } else {
-    bar.innerHTML = `<span class="weather-loading">Could not load weather — check ZIP in Settings.</span>`;
   }
-  updateSeasonChip();
-}
-
-function updateSeasonChip() {
-  season = getSeason();
-  const chip = document.getElementById('season-chip');
-  chip.textContent = season.charAt(0).toUpperCase() + season.slice(1);
-  document.getElementById('s-season').textContent = chip.textContent;
 }
 
 async function saveZip() {
   const z = document.getElementById('zip-input').value.trim();
-  if (!/^\d{5}$/.test(z)) { alert('Please enter a valid 5-digit ZIP code.'); return; }
+  if (!/^\d{5}$/.test(z)) { alert('Please enter a valid 5-digit ZIP.'); return; }
   localStorage.setItem('verdant_zip', z);
-  zip = z;
   document.getElementById('zip-display').textContent = z;
   document.getElementById('zip-weather-result').textContent = 'Fetching...';
   const w = await fetchWeather(z);
@@ -825,31 +665,33 @@ async function saveZip() {
     document.getElementById('zip-weather-result').textContent = `${w.city}: ${w.temp}°F, ${w.humidity}% humidity`;
     document.getElementById('s-humidity').textContent = w.humidity + '%';
     document.getElementById('s-temp').textContent = w.temp + '°F';
-    document.getElementById('weather-bar').innerHTML = `<span class="weather-icon">${weatherEmoji(w.code)}</span>
-      <span>${w.city}: <strong>${w.temp}°F</strong> · Humidity <strong>${w.humidity}%</strong></span>`;
+    document.getElementById('weather-bar').innerHTML = `<span>${weatherEmoji(w.code)} ${w.city}: <strong>${w.temp}°F</strong> · Humidity <strong>${w.humidity}%</strong></span>`;
     renderPlants();
   } else {
-    document.getElementById('zip-weather-result').textContent = 'Could not find location. Try again.';
+    document.getElementById('zip-weather-result').textContent = 'Could not find location.';
   }
 }
 
-// ── Navigation ───────────────────────────────────────────────────────────
+// ── Nav ──────────────────────────────────────────────────────────────────
 function showTab(name) {
   ['plants','add','settings'].forEach(t => {
-    document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
+    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
   });
-  document.querySelectorAll('.nav-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', ['plants','add','settings'][i] === name);
+  document.querySelectorAll('.nav-btn').forEach((btn,i) => {
+    btn.classList.toggle('active', ['plants','add','settings'][i]===name);
   });
-  if (name === 'plants') renderPlants();
-  if (name === 'settings') {
-    const z = localStorage.getItem('verdant_zip') || '';
-    if (z) { document.getElementById('zip-display').textContent = z; document.getElementById('zip-input').value = z; }
+  if (name==='plants') renderPlants();
+  if (name==='settings') {
+    const z = localStorage.getItem('verdant_zip')||'';
+    if (z) { document.getElementById('zip-display').textContent=z; document.getElementById('zip-input').value=z; }
+    document.getElementById('s-season').textContent = season.charAt(0).toUpperCase()+season.slice(1);
   }
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────
-updateSeasonChip();
+season = getSeason();
+document.getElementById('season-chip').textContent = season.charAt(0).toUpperCase()+season.slice(1);
+document.getElementById('s-season').textContent = season.charAt(0).toUpperCase()+season.slice(1);
 loadWeather();
 renderPlants();
 </script>
